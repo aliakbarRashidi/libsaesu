@@ -4,6 +4,9 @@
 // Qt
 #include <QtCore/QObject>
 
+// Us
+#include "sglobal.h"
+
 class QtIpcChannel : public QObject
 {
     Q_OBJECT

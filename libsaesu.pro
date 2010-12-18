@@ -15,7 +15,8 @@ HEADERS += include/qtipcchannel.h
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
 
-SOURCES += src/qtipcchannel.cpp
+SOURCES += src/qtipcchannel.cpp \
+           src/qtipcchannel_p.cpp
 
 # private headers
 HEADERS += include/qtipcchannel_p.h

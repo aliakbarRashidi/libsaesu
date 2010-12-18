@@ -1,11 +1,6 @@
+// Us
 #include "qtipcchannel.h"
 #include "qtipcchannel_p.h"
-
-QtIpcChannel::Private::Private(const QString &channelName, QtIpcChannel *parent)
-    : QObject(parent)
-    , mChannelName(channelName)
-{
-}
 
 QtIpcChannel::QtIpcChannel(const QString &channelName, QObject *parent)
     : QObject(parent)
