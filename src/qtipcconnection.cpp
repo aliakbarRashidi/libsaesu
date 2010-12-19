@@ -40,17 +40,12 @@ void QtIpcConnection::reconnect()
 
 void QtIpcConnection::onReadyRead()
 {
-    sDebug() << "bytes available: " << bytesAvailable() << peek(INT_MAX).toHex();
-
     while (bytesAvailable() >= sizeof(quint32)) {
         if (mBytesExpected == 0) {
             // read header
             read(reinterpret_cast<char *>(&mBytesExpected), sizeof(mBytesExpected));
         }
 
-        sDebug() << "Expecting " << mBytesExpected << " bytes";       
-        sDebug() << "Got " << bytesAvailable() << " bytes";
-        
         if (bytesAvailable() < mBytesExpected)
             return;
 
@@ -65,7 +60,6 @@ void QtIpcConnection::onReadyRead()
 
 void QtIpcConnection::processData(const QByteArray &bytes)
 {
-    sDebug() << "Processing " << bytes.length() << " bytes: " << bytes.toHex();
     QDataStream stream(bytes);
     
     quint8 command;
@@ -85,10 +79,6 @@ void QtIpcConnection::processData(const QByteArray &bytes)
             
             stream >> message;
             stream >> data;
-
-            sDebug() << "Got message from channel: " << mChannelName;
-            sDebug() << "Message: " << message;
-            sDebug() << "Data: " << data;
                     
             emit messageArrived(message, data);
             break;
