@@ -16,6 +16,7 @@ QtIpcConnection::QtIpcConnection(QObject *parent)
 void QtIpcConnection::reconnect()
 {
     // if we were asked to connect once, we should always reconnect
+    sDebug() << "Attempting reconnection";
     connect(this, SIGNAL(disconnected()), SLOT(reconnect()), Qt::UniqueConnection);
     disconnectFromServer();
 

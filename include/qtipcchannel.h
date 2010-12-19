@@ -22,8 +22,8 @@ public:
     static bool send(const QString &channel, const QString &message, const QByteArray &data);
     static bool send(const QString &channel, const QString &message);
     
-    bool send(const QString &message, const QByteArray &data);
-    bool send(const QString &message);
+    bool sendMessage(const QString &message, const QByteArray &data);
+    bool sendMessage(const QString &message);
 
 signals:
     void received(const QString &message, const QByteArray &data);

@@ -33,7 +33,7 @@ bool QtIpcChannel::isRegistered(const QString &channel)
 bool QtIpcChannel::send(const QString &channel, const QString &message)
 {
     QtIpcChannel c(channel);
-    c.send(message);
+    c.sendMessage(message);
 
     return true;
 }
@@ -41,18 +41,18 @@ bool QtIpcChannel::send(const QString &channel, const QString &message)
 bool QtIpcChannel::send(const QString &channel, const QString &message, const QByteArray& data)
 {
     QtIpcChannel c(channel);
-    c.send(message, data);
+    c.sendMessage(message, data);
 
     return true;
 }
 
-bool QtIpcChannel::send(const QString &message)
+bool QtIpcChannel::sendMessage(const QString &message)
 {
     d->sendMessage(message, QByteArray());
     return true;
 }
 
-bool QtIpcChannel::send(const QString &message, const QByteArray &data)
+bool QtIpcChannel::sendMessage(const QString &message, const QByteArray &data)
 {
     d->sendMessage(message, data);
     return true;
