@@ -1,5 +1,5 @@
-#ifndef QTIPCCHANNEL_H
-#define QTIPCCHANNEL_H
+#ifndef SIPCCHANNEL_H
+#define SIPCCHANNEL_H
 
 // Qt
 #include <QtCore/QObject>
@@ -7,12 +7,12 @@
 // Us
 #include "sglobal.h"
 
-class QtIpcChannel : public QObject
+class SIpcChannel : public QObject
 {
     Q_OBJECT
 public:
-    QtIpcChannel(const QString &channelName, QObject *parent = 0);
-    virtual	~QtIpcChannel() {}
+    SIpcChannel(const QString &channelName, QObject *parent = 0);
+    virtual	~SIpcChannel() {}
     
     const QString &channel() const;
     virtual void receive(const QString &message, const QByteArray &data);
@@ -31,5 +31,5 @@ private:
     Private *d;
 };
 
-#endif // QTIPCCHANNEL_H
+#endif // SIPCCHANNEL_H
 

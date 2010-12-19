@@ -2,21 +2,21 @@
 #include <QtNetwork/QLocalSocket>
 
 // Us
-#include "qtipcserver_p.h"
-#include "qtipcconnection_p.h"
+#include "sipcserver_p.h"
+#include "sipcconnection_p.h"
 
-QtIpcServer::QtIpcServer(QObject *parent)
+SIpcServer::SIpcServer(QObject *parent)
     : QLocalServer(parent)
 {
     // remove stale file just in caase
-    QLocalServer::removeServer(QLatin1String("qtipcserver"));
-    this->listen(QLatin1String("qtipcserver"));
+    QLocalServer::removeServer(QLatin1String("sipcserver"));
+    this->listen(QLatin1String("sipcserver"));
     sDebug() << "Established myself as the server";
 }
 
-void QtIpcServer::incomingConnection(quintptr socketDescriptor)
+void SIpcServer::incomingConnection(quintptr socketDescriptor)
 {
-    QtIpcConnection *s = new QtIpcConnection(this);
+    SIpcConnection *s = new SIpcConnection(this);
     s->setSocketDescriptor(socketDescriptor);
     connect(s, SIGNAL(messageArrived(const QString &, const QByteArray &)),
                SLOT(onClientMessage(const QString &, const QByteArray &)));
@@ -25,10 +25,10 @@ void QtIpcServer::incomingConnection(quintptr socketDescriptor)
     sDebug() << "Registered connection " << s << ", total peers: " << mPeers.count();
 }
 
-void QtIpcServer::onClientDisconnected()
+void SIpcServer::onClientDisconnected()
 {
     sDebug() << "Connection closed";
-    QtIpcConnection *s = qobject_cast<QtIpcConnection *>(sender());
+    SIpcConnection *s = qobject_cast<SIpcConnection *>(sender());
     if (S_VERIFY(s, "no QLocalSocket instance"))
         return;
         
@@ -36,13 +36,13 @@ void QtIpcServer::onClientDisconnected()
     s->deleteLater();
 }
 
-void QtIpcServer::onClientMessage(const QString &message, const QByteArray &data)
+void SIpcServer::onClientMessage(const QString &message, const QByteArray &data)
 {
-    QtIpcConnection *s = qobject_cast<QtIpcConnection *>(sender());
+    SIpcConnection *s = qobject_cast<SIpcConnection *>(sender());
     if (S_VERIFY(s, "no QLocalSocket instance"))
         return;
 
-    foreach (QtIpcConnection *conn, mPeers) {
+    foreach (SIpcConnection *conn, mPeers) {
         // ignore sender
         if (conn == s)
             continue;

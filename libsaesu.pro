@@ -12,20 +12,20 @@ OBJECTS_DIR = ./.obj/
 
 # Input
 HEADERS += include/sglobal.h \
-           include/qtipcchannel.h
+           include/sipcchannel.h
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
 
-SOURCES += src/qtipcchannel.cpp \
-           src/qtipcchannel_p.cpp \
-           src/qtipcserver.cpp \
-           src/qtipcconnection.cpp
+SOURCES += src/sipcchannel.cpp \
+           src/sipcchannel_p.cpp \
+           src/sipcserver.cpp \
+           src/sipcconnection.cpp
 
 # private headers
-HEADERS += include/qtipcchannel_p.h \
-           include/qtipcserver_p.h \
-           include/qtipcconnection_p.h
+HEADERS += include/sipcchannel_p.h \
+           include/sipcserver_p.h \
+           include/sipcconnection_p.h
 
 target.path = /usr/lib
 

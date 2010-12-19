@@ -1,5 +1,5 @@
-#ifndef QTIPCSERVER_H
-#define QTIPCSERVER_H
+#ifndef SIPCSERVER_H
+#define SIPCSERVER_H
 
 // Qt
 #include <QtCore/QObject>
@@ -9,14 +9,14 @@
 
 // Us
 #include "sglobal.h"
-#include "qtipcserver_p.h"
-class QtIpcConnection;
+#include "sipcserver_p.h"
+class SIpcConnection;
 
-class QtIpcServer : public QLocalServer
+class SIpcServer : public QLocalServer
 {
     Q_OBJECT
 public:
-    QtIpcServer(QObject *parent = 0);
+    SIpcServer(QObject *parent = 0);
     void incomingConnection(quintptr socketDescriptor);
 
 private slots:
@@ -24,8 +24,8 @@ private slots:
     void onClientMessage(const QString &message, const QByteArray &data);
     
 private:
-    QList<QtIpcConnection *> mPeers;
-    QMultiMap<QString, QtIpcConnection *> mChannels;
+    QList<SIpcConnection *> mPeers;
+    QMultiMap<QString, SIpcConnection *> mChannels;
 };
 
-#endif // QTIPCSERVER_H
+#endif // SIPCSERVER_H

@@ -2,10 +2,10 @@
 #include <QtNetwork/QLocalSocket>
 
 // Us
-#include "qtipcserver_p.h"
-#include "qtipcconnection_p.h"
+#include "sipcserver_p.h"
+#include "sipcconnection_p.h"
 
-QtIpcConnection::QtIpcConnection(QObject *parent)
+SIpcConnection::SIpcConnection(QObject *parent)
     : QLocalSocket(parent)
     , mServerInstance(0)
     , mBytesExpected(0)
@@ -13,7 +13,7 @@ QtIpcConnection::QtIpcConnection(QObject *parent)
     connect(this, SIGNAL(readyRead()), SLOT(onReadyRead()));
 }
 
-void QtIpcConnection::reconnect()
+void SIpcConnection::reconnect()
 {
     // if we were asked to connect once, we should always reconnect
     sDebug() << "Attempting reconnection";
@@ -22,7 +22,7 @@ void QtIpcConnection::reconnect()
 
     while (state() != QLocalSocket::ConnectedState) {
         // try connect to the server
-        connectToServer(QLatin1String("qtipcserver"));
+        connectToServer(QLatin1String("sipcserver"));
         
         // XXX: this is going to hurt if it blocks hard
         // what would be nice would be a QLocalServer::isRegistered(const QString &name)
@@ -30,7 +30,7 @@ void QtIpcConnection::reconnect()
             if (mServerInstance && mServerInstance->isListening())
                 qCritical("reconnect(): WTF: Couldn't connect when I was running the fucking server?");
                 
-            mServerInstance = new QtIpcServer(this);
+            mServerInstance = new SIpcServer(this);
         } else {
             // connected, introduce ourselves
             setChannelName(mChannelName);
@@ -38,7 +38,7 @@ void QtIpcConnection::reconnect()
     }
 }
 
-void QtIpcConnection::onReadyRead()
+void SIpcConnection::onReadyRead()
 {
     while (bytesAvailable() >= sizeof(quint32)) {
         if (mBytesExpected == 0) {
@@ -58,7 +58,7 @@ void QtIpcConnection::onReadyRead()
     }
 }
 
-void QtIpcConnection::processData(const QByteArray &bytes)
+void SIpcConnection::processData(const QByteArray &bytes)
 {
     QDataStream stream(bytes);
     
@@ -88,7 +88,7 @@ void QtIpcConnection::processData(const QByteArray &bytes)
     }
 }
 
-void QtIpcConnection::setChannelName(const QString &channelName)
+void SIpcConnection::setChannelName(const QString &channelName)
 {
     mChannelName = channelName;
     
@@ -118,12 +118,12 @@ void QtIpcConnection::setChannelName(const QString &channelName)
     sDebug() << "Sent channel change request to " << channelName << ": " << bytes.toHex();
 }
 
-const QString &QtIpcConnection::channelName() const
+const QString &SIpcConnection::channelName() const
 {
     return mChannelName;
 }
 
-void QtIpcConnection::sendMessage(const QString &message, const QByteArray &data)
+void SIpcConnection::sendMessage(const QString &message, const QByteArray &data)
 {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);

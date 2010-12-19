@@ -1,5 +1,5 @@
-#ifndef QTIPCCONNECTION_H
-#define QTIPCCONNECTION_H
+#ifndef SIPCCONNECTION_H
+#define SIPCCONNECTION_H
 
 // Qt
 #include <QtCore/QObject>
@@ -9,16 +9,16 @@
 
 // Us
 #include "sglobal.h"
-#include "qtipcchannel.h"
-class QtIpcServer;
+#include "sipcchannel.h"
+class SIpcServer;
 
-class QtIpcConnection : public QLocalSocket
+class SIpcConnection : public QLocalSocket
 {
     Q_OBJECT
 
 public:
-    QtIpcConnection(QObject *parent = 0);
-    QtIpcServer *mServerInstance;
+    SIpcConnection(QObject *parent = 0);
+    SIpcServer *mServerInstance;
     
     void setChannelName(const QString &channelName);
     const QString &channelName() const;
@@ -42,4 +42,4 @@ private:
     QString mChannelName;
 };
 
-#endif // QTIPCCONNECTION_H
+#endif // SIPCCONNECTION_H

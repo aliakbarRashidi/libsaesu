@@ -1,5 +1,5 @@
-#ifndef QTIPCCHANNEL_P_H
-#define QTIPCCHANNEL_P_H
+#ifndef SIPCCHANNEL_P_H
+#define SIPCCHANNEL_P_H
 
 // Qt
 #include <QtCore/QObject>
@@ -7,16 +7,16 @@
 
 // Us
 #include "sglobal.h"
-#include "qtipcchannel.h"
-class QtIpcConnection;
+#include "sipcchannel.h"
+class SIpcConnection;
 
-class QtIpcChannel::Private : public QObject
+class SIpcChannel::Private : public QObject
 {
     Q_OBJECT
 
 public:
-    Private(const QString &channelName, QtIpcChannel *parent);
-    QtIpcConnection *mConnection;
+    Private(const QString &channelName, SIpcChannel *parent);
+    SIpcConnection *mConnection;
     
     const QString &channelName() const;
     void sendMessage(const QString &message, const QByteArray &data);
@@ -25,7 +25,7 @@ private slots:
     void onMessageArrived(const QString &message, const QByteArray &data);
     
 private:
-    QtIpcChannel *q;
+    SIpcChannel *q;
 };
 
-#endif // QTIPCCHANNEL_P_H
+#endif // SIPCCHANNEL_P_H
