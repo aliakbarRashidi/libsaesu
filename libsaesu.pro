@@ -18,10 +18,14 @@ headers.path = /usr/include/saesu
 headers.files = $$HEADERS
 
 SOURCES += src/qtipcchannel.cpp \
-           src/qtipcchannel_p.cpp
+           src/qtipcchannel_p.cpp \
+           src/qtipcserver.cpp \
+           src/qtipcconnection.cpp
 
 # private headers
-HEADERS += include/qtipcchannel_p.h
+HEADERS += include/qtipcchannel_p.h \
+           include/qtipcserver_p.h \
+           include/qtipcconnection_p.h
 
 target.path = /usr/lib
 

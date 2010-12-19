@@ -4,12 +4,11 @@
 // Qt
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
 
 // Us
 #include "sglobal.h"
 #include "qtipcchannel.h"
+class QtIpcConnection;
 
 class QtIpcChannel::Private : public QObject
 {
@@ -17,19 +16,10 @@ class QtIpcChannel::Private : public QObject
 
 public:
     Private(const QString &channelName, QtIpcChannel *parent);
+    QtIpcConnection *mConnection;
     
-    QString mChannelName;
-    QLocalServer mServerInstance;
-    QList<QLocalSocket *> mPeers;
-    QLocalSocket mSlaveSocket;
-    
-private slots:
-    void onClientConnected();
-    void onClientDisconnected();
-    void reconnect();
-    
-private:
-    void registerPeer(QLocalSocket *s);
+    const QString &channelName() const;
+    void sendMessage(const QString &message, const QByteArray &data);
 };
 
 #endif // QTIPCCHANNEL_P_H

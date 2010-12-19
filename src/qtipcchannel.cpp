@@ -12,7 +12,7 @@ QtIpcChannel::QtIpcChannel(const QString &channelName, QObject *parent)
 
 const QString &QtIpcChannel::channel() const
 {
-    return d->mChannelName;
+    return d->channelName();
 }
 
 void QtIpcChannel::receive(const QString &message, const QByteArray &data)
@@ -28,18 +28,32 @@ bool QtIpcChannel::isRegistered(const QString &channel)
     return false;
 }
 
+bool QtIpcChannel::send(const QString &channel, const QString &message)
+{
+    Q_UNUSED(channel);
+    Q_UNUSED(message);
+
+    return false;
+}
+
 bool QtIpcChannel::send(const QString &channel, const QString &message, const QByteArray& data)
 {
     Q_UNUSED(channel);
     Q_UNUSED(message);
     Q_UNUSED(data);
+
     return false;
 }
 
-bool QtIpcChannel::send(const QString &channel, const QString &message)
+bool QtIpcChannel::send(const QString &message)
 {
-    Q_UNUSED(channel);
-    Q_UNUSED(message);
+    d->sendMessage(message, QByteArray());
+    return false;
+}
+
+bool QtIpcChannel::send(const QString &message, const QByteArray &data)
+{
+    d->sendMessage(message, data);
     return false;
 }
 
