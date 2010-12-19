@@ -25,6 +25,7 @@ void QtIpcChannel::receive(const QString &message, const QByteArray &data)
 
 bool QtIpcChannel::isRegistered(const QString &channel)
 {
+    // TODO: implement me
     Q_UNUSED(channel);
     return false;
 }
