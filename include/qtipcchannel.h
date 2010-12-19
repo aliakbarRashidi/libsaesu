@@ -16,8 +16,6 @@ public:
     
     const QString &channel() const;
     virtual void receive(const QString &message, const QByteArray &data);
-    
-    static bool isRegistered(const QString &channel);
 
     static bool send(const QString &channel, const QString &message, const QByteArray &data);
     static bool send(const QString &channel, const QString &message);

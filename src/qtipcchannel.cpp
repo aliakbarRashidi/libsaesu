@@ -20,13 +20,6 @@ void QtIpcChannel::receive(const QString &message, const QByteArray &data)
     emit received(message, data);
 }
 
-bool QtIpcChannel::isRegistered(const QString &channel)
-{
-    // TODO: implement me
-    Q_UNUSED(channel);
-    return false;
-}
-
 bool QtIpcChannel::send(const QString &channel, const QString &message)
 {
     QtIpcChannel c(channel);
