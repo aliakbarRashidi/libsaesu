@@ -17,9 +17,10 @@ const QString &QtIpcChannel::channel() const
 
 void QtIpcChannel::receive(const QString &message, const QByteArray &data)
 {
-    // default implementation does nothing
-    Q_UNUSED(message);
-    Q_UNUSED(data);
+    sDebug() << "Got message on channel " << channel();
+    sDebug() << "Message: " << message;
+    sDebug() << "Data: " << data;
+    emit received(message, data);
 }
 
 bool QtIpcChannel::isRegistered(const QString &channel)

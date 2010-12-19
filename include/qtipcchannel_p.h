@@ -20,6 +20,12 @@ public:
     
     const QString &channelName() const;
     void sendMessage(const QString &message, const QByteArray &data);
+    
+private slots:
+    void onMessageArrived(const QString &message, const QByteArray &data);
+    
+private:
+    QtIpcChannel *q;
 };
 
 #endif // QTIPCCHANNEL_P_H
