@@ -6,7 +6,6 @@
 #include <QtCore/QString>
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
-#include <QtNetwork/QUdpSocket>
 
 // Us
 #include "sglobal.h"
@@ -20,15 +19,14 @@ public:
     Private(const QString &channelName, QtIpcChannel *parent);
     
     QString mChannelName;
-    QUdpSocket mBroadcaster;
     QLocalServer mServerInstance;
     QList<QLocalSocket *> mPeers;
+    QLocalSocket mSlaveSocket;
     
 private slots:
-    void onNewIpcChannelAnnounced();
-    void onPeerConnected();
-    void onPeerDisconnected();
-    void onPeerError(QLocalSocket::LocalSocketError socketError);
+    void onClientConnected();
+    void onClientDisconnected();
+    void reconnectOrEstablishServer();
     
 private:
     void registerPeer(QLocalSocket *s);

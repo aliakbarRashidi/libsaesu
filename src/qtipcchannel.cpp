@@ -1,3 +1,5 @@
+#include <QLocalSocket>
+
 // Us
 #include "qtipcchannel.h"
 #include "qtipcchannel_p.h"

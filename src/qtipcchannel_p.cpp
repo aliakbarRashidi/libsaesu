@@ -9,83 +9,38 @@ QtIpcChannel::Private::Private(const QString &channelName, QtIpcChannel *parent)
     : QObject(parent)
     , mChannelName(channelName)
 {
-    // find a unique free name
-    int tries = 0;
-    QString realName;
-    forever {
-        QLocalSocket socket;
-        realName = channelName + QString::number(tries);
-        sDebug() << "Trying to connect to " << realName;
-        socket.connectToServer(realName);
+    reconnectOrEstablishServer();
+
+    connect(&mServerInstance, SIGNAL(newConnection()), SLOT(onClientConnected()));
+    connect(&mSlaveSocket, SIGNAL(disconnected()), SLOT(reconnectOrEstablishServer()));
+}
+
+void QtIpcChannel::Private::reconnectOrEstablishServer()
+{
+    mSlaveSocket.disconnectFromServer();
+
+    while (mSlaveSocket.state() != QLocalSocket::ConnectedState &&
+            !mServerInstance.isListening()) {
+        // try connect to the server
+        mSlaveSocket.connectToServer(QLatin1String("qtipcserver"));
         
         // XXX: this is going to hurt if it blocks hard
         // what would be nice would be a QLocalServer::isRegistered(const QString &name)
-        if (!socket.waitForConnected())
-            break; // couldn't connect, free for a server
-            
-        tries++;
-    }
-    
-    sDebug() << "Listening to " << realName;
-    
-    // remove stale file just in caase
-    QLocalServer::removeServer(realName);
-    mServerInstance.listen(realName);
-    connect(&mServerInstance, SIGNAL(newConnection()), SLOT(onPeerConnected()));
-    
-    // broadcast our presence
-    QString packet = channelName + QLatin1Char('\n') + realName + QLatin1Char('\n');
-    mBroadcaster.bind(QHostAddress::LocalHost, 12354);
-    sDebug() << "Broadcasting: " << mBroadcaster.writeDatagram(packet.toUtf8(), QHostAddress::LocalHost, 12354);
-
-    connect(&mBroadcaster, SIGNAL(readyRead()), SLOT(onNewIpcChannelAnnounced()));
-}
-
-void QtIpcChannel::Private::onNewIpcChannelAnnounced()
-{
-    static QByteArray buffer;
-    while (mBroadcaster.hasPendingDatagrams()) {
-         QByteArray datagram;
-         buffer.resize(mBroadcaster.pendingDatagramSize());
-         mBroadcaster.readDatagram(buffer.data(), buffer.size());
-    }
-    
-    QList<QByteArray> bufferParts = buffer.split('\n');
-    QString channelName;
-    QString socketAddress;
-    
-    foreach (const QByteArray &bufferPart, bufferParts) {
-        if (channelName.isEmpty()) {
-            channelName = bufferPart;
+        if (!mSlaveSocket.waitForConnected()) {
+            // couldn't connect; start a server instance
+            // remove stale file just in caase
+            QLocalServer::removeServer(QLatin1String("qtipcserver"));
+            mServerInstance.listen(QLatin1String("qtipcserver"));
+            sDebug() << "Established myself as the server";
         } else {
-            socketAddress = bufferPart;
-
-            sDebug() << "Got channel: " << channelName
-                     << " with address " << socketAddress;
-                     
-            if (socketAddress != mServerInstance.serverName()) {
-                sDebug() << "Connecting to " << socketAddress;
-                QLocalSocket *s = new QLocalSocket(this);
-                s->connectToServer(socketAddress);
-                
-                // XXX: blocking
-                if (!s->waitForConnected()) {
-                    sDebug() << "Couldn't connect! " << s->errorString();
-                    delete s;
-                    
-                    // TODO: what to do here? this effectively means IPC is fucked
-                } else {
-                    registerPeer(s);
-                }
-            }
-                     
-            channelName.clear();
-            socketAddress.clear();
+            // introduce ourselves to the server
+//            mSlaveSocket.write("H " + mChannelName);
+            sDebug() << "Connected and said hello";
         }
     }
 }
 
-void QtIpcChannel::Private::onPeerConnected()
+void QtIpcChannel::Private::onClientConnected()
 {
     sDebug() << "Got a new connection";
     
@@ -95,7 +50,7 @@ void QtIpcChannel::Private::onPeerConnected()
     }
 }
 
-void QtIpcChannel::Private::onPeerDisconnected()
+void QtIpcChannel::Private::onClientDisconnected()
 {
     sDebug() << "Connection closed";
     QLocalSocket *s = qobject_cast<QLocalSocket *>(sender());
@@ -106,17 +61,9 @@ void QtIpcChannel::Private::onPeerDisconnected()
     s->deleteLater();
 }
 
-void QtIpcChannel::Private::onPeerError(QLocalSocket::LocalSocketError socketError)
-{
-    sDebug() << "Connection error: " << socketError;
-    onPeerDisconnected();
-}
-
 void QtIpcChannel::Private::registerPeer(QLocalSocket *s)
 {
-    connect(s, SIGNAL(disconnected()), SLOT(onPeerDisconnected()));
-    connect(s, SIGNAL(error(QLocalSocket::LocalSocketError)),
-               SLOT(onPeerError(QLocalSocket::LocalSocketError)));
+    connect(s, SIGNAL(disconnected()), SLOT(onClientDisconnected()));
     mPeers.append(s);
     sDebug() << "Registered peer " << s << ", total peers: " << mPeers.count();
 }
