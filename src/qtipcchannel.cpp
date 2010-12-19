@@ -34,7 +34,7 @@ bool QtIpcChannel::send(const QString &channel, const QString &message)
     QtIpcChannel c(channel);
     c.send(message);
 
-    return false;
+    return true;
 }
 
 bool QtIpcChannel::send(const QString &channel, const QString &message, const QByteArray& data)
@@ -42,18 +42,18 @@ bool QtIpcChannel::send(const QString &channel, const QString &message, const QB
     QtIpcChannel c(channel);
     c.send(message, data);
 
-    return false;
+    return true;
 }
 
 bool QtIpcChannel::send(const QString &message)
 {
     d->sendMessage(message, QByteArray());
-    return false;
+    return true;
 }
 
 bool QtIpcChannel::send(const QString &message, const QByteArray &data)
 {
     d->sendMessage(message, data);
-    return false;
+    return true;
 }
 
