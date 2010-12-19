@@ -26,7 +26,7 @@ public:
 private slots:
     void onClientConnected();
     void onClientDisconnected();
-    void reconnectOrEstablishServer();
+    void reconnect();
     
 private:
     void registerPeer(QLocalSocket *s);

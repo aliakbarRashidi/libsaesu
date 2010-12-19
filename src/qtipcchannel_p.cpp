@@ -9,24 +9,26 @@ QtIpcChannel::Private::Private(const QString &channelName, QtIpcChannel *parent)
     : QObject(parent)
     , mChannelName(channelName)
 {
-    reconnectOrEstablishServer();
+    reconnect();
 
     connect(&mServerInstance, SIGNAL(newConnection()), SLOT(onClientConnected()));
-    connect(&mSlaveSocket, SIGNAL(disconnected()), SLOT(reconnectOrEstablishServer()));
+    connect(&mSlaveSocket, SIGNAL(disconnected()), SLOT(reconnect()));
 }
 
-void QtIpcChannel::Private::reconnectOrEstablishServer()
+void QtIpcChannel::Private::reconnect()
 {
     mSlaveSocket.disconnectFromServer();
 
-    while (mSlaveSocket.state() != QLocalSocket::ConnectedState &&
-            !mServerInstance.isListening()) {
+    while (mSlaveSocket.state() != QLocalSocket::ConnectedState) {
         // try connect to the server
         mSlaveSocket.connectToServer(QLatin1String("qtipcserver"));
         
         // XXX: this is going to hurt if it blocks hard
         // what would be nice would be a QLocalServer::isRegistered(const QString &name)
         if (!mSlaveSocket.waitForConnected()) {
+            if (mServerInstance.isListening())
+                qCritical("reconnect(): WTF: Couldn't connect when I was running the fucking server?");
+
             // couldn't connect; start a server instance
             // remove stale file just in caase
             QLocalServer::removeServer(QLatin1String("qtipcserver"));
