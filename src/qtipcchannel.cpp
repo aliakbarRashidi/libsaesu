@@ -31,17 +31,16 @@ bool QtIpcChannel::isRegistered(const QString &channel)
 
 bool QtIpcChannel::send(const QString &channel, const QString &message)
 {
-    Q_UNUSED(channel);
-    Q_UNUSED(message);
+    QtIpcChannel c(channel);
+    c.send(message);
 
     return false;
 }
 
 bool QtIpcChannel::send(const QString &channel, const QString &message, const QByteArray& data)
 {
-    Q_UNUSED(channel);
-    Q_UNUSED(message);
-    Q_UNUSED(data);
+    QtIpcChannel c(channel);
+    c.send(message, data);
 
     return false;
 }
