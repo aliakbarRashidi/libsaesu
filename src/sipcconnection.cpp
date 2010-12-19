@@ -164,6 +164,7 @@ void SIpcConnection::sendMessage(const QString &message, const QByteArray &data)
     bytes[3] = length >> 24;
 
     write(bytes);
+    flush();
     sDebug() << "Sent message to " << mChannelName;
 }
 

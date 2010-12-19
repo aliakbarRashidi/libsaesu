@@ -27,6 +27,7 @@ class tst_SIpcChannel : public QObject
 private slots:
     void channel() const;
     void receive() const;
+    void send() const;
 };
 
 class TestRecieverSink : public SIpcChannel
