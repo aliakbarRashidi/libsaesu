@@ -11,7 +11,9 @@ MOC_DIR = ./.moc/
 OBJECTS_DIR = ./.obj/
 
 # Input
-HEADERS += include/qtipcchannel.h
+HEADERS += include/sglobal.h \
+           include/qtipcchannel.h
+
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
 
