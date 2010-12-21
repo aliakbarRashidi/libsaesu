@@ -1,0 +1,9 @@
+.moc/
+.obj/
+Makefile
+libsaesu.prl
+libsaesu.so
+libsaesu.so.1
+libsaesu.so.1.0
+libsaesu.so.1.0.0
+saesu.pc
