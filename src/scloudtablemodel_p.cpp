@@ -15,40 +15,10 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SCLOUDSTORAGE_H
-#define SCLOUDSTORAGE_H
+#include "scloudtablemodel_p.h"
 
-// Qt
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-class QMetaType;
-
-// Us
-#include "sglobal.h"
-class SCloudItem;
-
-class SCloudStorage : public QObject
+SCloudTableModel::Private::Private(SCloudStorage *cloud)
+    : mCloud(cloud)
 {
-    Q_OBJECT
-public:
-    static SCloudStorage *instance(const QString &cloudName);
+}
 
-    static const QMetaObject *registerType(const QString &className, const QMetaObject *type = 0);
-
-    void load();
-    void save();
-
-    void addItem(SCloudItem *item);
-    void removeItem(SCloudItem *item);
-    SCloudItem *item(const QString &uuid) const;
-    QList<SCloudItem *> items() const;
-
-private:
-    SCloudStorage(const QString &cloudName, QObject *parent = 0);
-    virtual ~SCloudStorage();
-
-    class Private;
-    Private *d;
-};
-
-#endif // SCLOUDSTORAGE_H

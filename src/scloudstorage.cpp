@@ -195,11 +195,12 @@ void SCloudStorage::save()
  */
 void SCloudStorage::addItem(SCloudItem *item)
 {
-    if (S_VERIFY(d->mItems.find(item->uuid()) == d->mItems.end(), "same item inserted twice"))
+    if (S_VERIFY(d->mItemsHash.find(item->uuid()) == d->mItemsHash.end(), "same item inserted twice"))
         return;
 
     item->setParent(this);
-    d->mItems.insert(item->uuid(), item);
+    d->mItemsHash.insert(item->uuid(), item);
+    d->mItems.append(item);
     sDebug() << "Added " << item->uuid() << " to " << d->mCloudName;
 }
 
@@ -211,11 +212,12 @@ void SCloudStorage::addItem(SCloudItem *item)
  */
 void SCloudStorage::removeItem(SCloudItem *item)
 {
-    if (S_VERIFY(d->mItems.find(item->uuid()) != d->mItems.end(), "removing an item that was never there"))
+    if (S_VERIFY(d->mItemsHash.find(item->uuid()) != d->mItemsHash.end(), "removing an item that was never there"))
         return;
 
     item->setParent(0);
-    d->mItems.remove(item->uuid());
+    d->mItemsHash.remove(item->uuid());
+    d->mItems.removeAll(item);
     sDebug() << "Removed " << item->uuid() << " from " << d->mCloudName;
 }
 
@@ -224,11 +226,20 @@ void SCloudStorage::removeItem(SCloudItem *item)
  */
 SCloudItem *SCloudStorage::item(const QString &uuid) const
 {
-    QHash<QString, SCloudItem *>::ConstIterator it = d->mItems.find(uuid);
+    QHash<QString, SCloudItem *>::ConstIterator it = d->mItemsHash.find(uuid);
    
-    if (it == d->mItems.end())
+    if (it == d->mItemsHash.end())
         return NULL;
 
     return *it;
 }
 
+/*!
+ * \internal
+ *
+ * Returns a list of all items in this cloud.
+ */
+QList<SCloudItem *> SCloudStorage::items() const
+{
+   return d->mItems;
+}

@@ -25,7 +25,8 @@ public:
     virtual ~Private();
 
     QString mCloudName;
-    QHash<QString, SCloudItem *> mItems;
+    QHash<QString, SCloudItem *> mItemsHash;
+    QList<SCloudItem *> mItems;
 };
 
 #endif // SCLOUDSTORAGE_P_H
