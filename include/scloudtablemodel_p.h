@@ -28,6 +28,7 @@ public:
     Private(SCloudStorage *cloud);
 
     SCloudStorage *mCloud;
+    QList<QString> mColumnNames;
 };
 
 #endif // SCLOUDTABLEMODEL_P_H
