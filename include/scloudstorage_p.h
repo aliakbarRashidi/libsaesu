@@ -18,6 +18,23 @@
 #ifndef SCLOUDSTORAGE_P_H
 #define SCLOUDSTORAGE_P_H
 
+// Qt
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
+
+struct SCloudItem
+{
+    // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
+    QString mUuid;
+    QHash<QString, QVariant> mFields;
+};
+
+QDataStream &operator<<(QDataStream &out, const SCloudItem &item);
+QDataStream &operator>>(QDataStream &in, SCloudItem &item);
+QDebug operator<<(QDebug dbg, const SCloudItem &item);
+
 class SCloudStorage::Private
 {
 public:
@@ -25,8 +42,9 @@ public:
     virtual ~Private();
 
     QString mCloudName;
-    QHash<QString, SCloudItem *> mItemsHash;
+
     QList<SCloudItem *> mItems;
+    QHash<QString, SCloudItem *> mItemsHash;
 };
 
 #endif // SCLOUDSTORAGE_P_H

@@ -30,5 +30,35 @@ SCloudStorage::Private::Private(const QString &cloudName)
 
 SCloudStorage::Private::~Private()
 {
+    qDeleteAll(mItems);
+    mItems.clear();
+    mItemsHash.clear();
 }
 
+QDataStream &operator<<(QDataStream &out, const SCloudItem &item)
+{
+    sDebug() << "Persisting item " << item.mUuid << item.mFields;
+    out << item.mUuid << item.mFields;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, SCloudItem &item)
+{
+    QString uuid;
+    QHash<QString, QVariant> fields;
+
+    in >> uuid >> fields;
+
+    item.mUuid = uuid;
+    item.mFields = fields;
+
+    sDebug() << "Loaded " << uuid << fields;
+    //return in >> item.mUuid >> item.mFields;
+    return in;
+}
+
+QDebug operator<<(QDebug dbg, const SCloudItem &item)
+{
+    dbg.nospace() << item.mUuid << "(" << item.mFields << ")";
+    return dbg.space();
+}

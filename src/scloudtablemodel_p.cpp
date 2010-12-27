@@ -21,4 +21,3 @@ SCloudTableModel::Private::Private(SCloudStorage *cloud)
     : mCloud(cloud)
 {
 }
-

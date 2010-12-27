@@ -22,7 +22,7 @@
 #include "scloudtablemodel.h"
 #include "scloudtablemodel_p.h"
 #include "scloudstorage.h"
-#include "sclouditem.h"
+#include "scloudstorage_p.h"
 
 SCloudTableModel::SCloudTableModel(SCloudStorage *cloud, QObject *parent)
     : QAbstractItemModel(parent)
@@ -52,9 +52,8 @@ int SCloudTableModel::columnCount(const QModelIndex&) const
 
 QVariant SCloudTableModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole) {
-        return d->mCloud->items()[index.row()]->uuid();
-    }
+    if (role == Qt::DisplayRole)
+        return d->mCloud->items()[index.row()]->mUuid;
 
     return QVariant();
 }

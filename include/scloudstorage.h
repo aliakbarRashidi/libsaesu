@@ -20,8 +20,7 @@
 
 // Qt
 #include <QtCore/QObject>
-#include <QtCore/QHash>
-class QMetaType;
+#include <QtCore/QVariantMap>
 
 // Us
 #include "sglobal.h"
@@ -33,15 +32,22 @@ class SCloudStorage : public QObject
 public:
     static SCloudStorage *instance(const QString &cloudName);
 
-    static const QMetaObject *registerType(const QString &className, const QMetaObject *type = 0);
-
     void load();
     void save();
 
-    void addItem(SCloudItem *item);
-    void removeItem(SCloudItem *item);
-    SCloudItem *item(const QString &uuid) const;
+    QVariant get(const QString &uuid, const QString &field) const;
+    void set(const QString &uuid, const QString &field, const QVariant &data);
+    QString create(const QHash<QString, QVariant> &fields = QHash<QString, QVariant>());
+    void destroy(const QString &uuid);
+
+    // not public API!
     QList<SCloudItem *> items() const;
+
+signals:
+    // TODO: coalesce changes
+    void changed(const QString &uuid);
+    void created(const QString &uuid);
+    void destroyed(const QString &uuid);
 
 private:
     SCloudStorage(const QString &cloudName, QObject *parent = 0);

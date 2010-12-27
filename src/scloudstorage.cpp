@@ -18,6 +18,7 @@
 // Qt
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
+#include <QtCore/QUuid>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
@@ -25,27 +26,29 @@
 // Us
 #include "scloudstorage.h"
 #include "scloudstorage_p.h"
-#include "sclouditem.h"
 
 /*!
     \class SCloudStorage
     \brief SCloudStorage offers storage and management of data.
 
-    SCloudStorage provides management of SCloudItem instances, and is responsible
-    for keepign SCloudItem instances under its control persisted to disk,
-    as well as kept in sync across the network.
+    SCloudStorage provides management, persistance and synchronisation of data
+    across multiple processes on a single host, as well as the wider network.
     
     Synchronisation and storage is controlled by cloud naming, e.g. a cloud named
     'contacts' will be replicated across multiple devices advertising the same
     cloud.
-
-    \sa SCloudItem
 */
 
+/*!
+ * \internal
+ *
+ * \sa instance()
+ */
 SCloudStorage::SCloudStorage(const QString &cloudName, QObject *parent)
     : QObject(parent)
     , d(new Private(cloudName))
 {
+    load();
 }
 
 SCloudStorage::~SCloudStorage()
@@ -70,34 +73,7 @@ SCloudStorage *SCloudStorage::instance(const QString &cloudName)
     SCloudStorage *ptr = new SCloudStorage(cloudName);
     hash.insert(cloudName, ptr);
     ptr->setParent(QCoreApplication::instance());
-    ptr->load();
     return ptr;
-}
-
-/*!
- * Registers a given \a type pointer as belonging to a \a className.
- *
- * This is needed as a hack to work around Qt's meta object system not allowing us
- * to look up a QMetaObject instance from a given class name, as SCloudStorage must
- * create arbitrary class instances from class name.
- */
-const QMetaObject *SCloudStorage::registerType(const QString &className, const QMetaObject *type)
-{
-    static QHash<QString, const QMetaObject *> types;
-    if (type) {
-        // setting type
-        types.insert(className, type);
-        return type;
-    }
-
-    // the hidden magic here is that we can also return a pointer when asked
-    // this behaviour is not documented, as it is only used internally.
-    QHash<QString, const QMetaObject *>::ConstIterator it = types.find(className);
-
-    if (it != types.end())
-        return *it;
-
-    return NULL;
 }
 
 /*!
@@ -105,8 +81,7 @@ const QMetaObject *SCloudStorage::registerType(const QString &className, const Q
  *
  * Tries to load this cloud instance from disk if possible.
  *
- * \note You should avoid calling this from third party code; SCloudStorage
- * initialises itself for you.
+ * \note You should not need to use this in userspace code, as SCloudStorage's constructor tries to load for you.
  */
 void SCloudStorage::load()
 {
@@ -136,24 +111,13 @@ void SCloudStorage::load()
     quint32 itemsCount;
     stream >> itemsCount;
     sDebug() << "Reading " << itemsCount << " items into cloud " << d->mCloudName;
-    
+
     for (quint32 i = 0; i < itemsCount; ++i) {
-        QString className;
-        stream >> className;
-        
-        QByteArray bytes;
-        stream >> bytes;
-        
-        const QMetaObject *obj = registerType(className);
-        if (S_VERIFY(obj, "unknown type! eek! did you forget to load a plugin?"))
-            continue;
-
-        SCloudItem *item = qobject_cast<SCloudItem *>(obj->newInstance(Q_ARG(QString, d->mCloudName)));
-        if (S_VERIFY(item, "couldn't construct type!"))
-            continue;
-
-        item->deserialize(bytes, version);
-        sDebug() << "Read object of type " << className << "(" << item->uuid() << ")";
+        SCloudItem *item = new SCloudItem;
+        stream >> *item;
+        sDebug() << *item;
+        d->mItems.append(item);
+        d->mItemsHash.insert(item->mUuid, item);
     }
 }
 
@@ -170,15 +134,10 @@ void SCloudStorage::save()
 
     stream << (quint32)0xDEAAFFEB; // header
     stream << (quint8)0; // version
-    stream << (quint32)d->mItems.count(); // TODO: enough items?
+    stream << (quint32)d->mItems.count();
 
-    // XXX: this won't scale
-    foreach (SCloudItem *item, d->mItems) {
-        QString className = item->metaObject()->className();
-        sDebug() << "Saving item of type " << className << "(" << item->uuid() << ")";
-        stream << className;
-        stream << item->serialize();
-    }
+    foreach (SCloudItem *item, d->mItems)
+        stream << *item;
 
     QFile f(d->mCloudName + "_cloud");
     f.open(QIODevice::WriteOnly);
@@ -188,58 +147,89 @@ void SCloudStorage::save()
 }
 
 /*!
- * \internal
- * Adds a given \a item to this cloud.
- *
- * \note SCloudItem should do this for you; you shouldn't have to use it.
+ * Retrieves a given \a field from a \a UUID.
  */
-void SCloudStorage::addItem(SCloudItem *item)
+QVariant SCloudStorage::get(const QString &uuid, const QString &field) const
 {
-    if (S_VERIFY(d->mItemsHash.find(item->uuid()) == d->mItemsHash.end(), "same item inserted twice"))
+    if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
+        return QVariant();
+
+    SCloudItem *item = *(d->mItemsHash.find(uuid));
+    return *(item->mFields.find(field));
+}
+
+/*!
+ * Sets a \a field to \a data on a given \a uuid.
+ */
+void SCloudStorage::set(const QString &uuid, const QString &field, const QVariant &data)
+{
+    if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return;
 
-    item->setParent(this);
-    d->mItemsHash.insert(item->uuid(), item);
+    SCloudItem *item = *(d->mItemsHash.find(uuid));
+    item->mFields[field] = data;
+
+    sDebug() << "Changed " << uuid << " field: " << field << " to " << data;
+    emit changed(uuid);
+}
+
+/*!
+ * Creates a new item of data with a unique identifier.
+ * Returns the unique identifier for this data.
+ */
+QString SCloudStorage::create(const QHash<QString, QVariant> &fields)
+{
+    SCloudItem *item = new SCloudItem;
+
+    // hehe.. let's hope it isn't forever!
+    int tries = 0;
+    forever {
+        item->mUuid = QUuid::createUuid().toString();
+        item->mUuid= item->mUuid.mid(1, item->mUuid.length() - 2);
+
+        if (d->mItemsHash.find(item->mUuid) == d->mItemsHash.end())
+            break;
+
+        // paranoia
+        if (tries++ == 100)
+            sDebug() << "Generating a unique ID has taken way too many attempts; broken UUID generator?";
+
+        // more paranoia
+        if (tries == 1000)
+            qCritical("SCloudStorage: either a morbidly large cloud or a broken UUID generator, panic!");
+    }
+
     d->mItems.append(item);
-    sDebug() << "Added " << item->uuid() << " to " << d->mCloudName;
+    d->mItemsHash.insert(item->mUuid, item);
+
+    sDebug() << "Created " << item->mUuid << "(" << fields << ")";
+    emit created(item->mUuid);
+    return item->mUuid;
 }
 
 /*!
- * \internal
- * Removes a given \a item from this cloud.
- *
- * \note You should probably rethink your design if you have to use this.
+ * Destroys the data associated with a given \a uuid, removing it from the cloud.
  */
-void SCloudStorage::removeItem(SCloudItem *item)
+void SCloudStorage::destroy(const QString &uuid)
 {
-    if (S_VERIFY(d->mItemsHash.find(item->uuid()) != d->mItemsHash.end(), "removing an item that was never there"))
+    if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return;
 
-    item->setParent(0);
-    d->mItemsHash.remove(item->uuid());
+    SCloudItem *item = *(d->mItemsHash.find(uuid));
     d->mItems.removeAll(item);
-    sDebug() << "Removed " << item->uuid() << " from " << d->mCloudName;
-}
+    d->mItemsHash.remove(uuid);
+    delete item;
 
-/*!
- * Retrieves an item with a given \a uuid from this cloud.
- */
-SCloudItem *SCloudStorage::item(const QString &uuid) const
-{
-    QHash<QString, SCloudItem *>::ConstIterator it = d->mItemsHash.find(uuid);
-   
-    if (it == d->mItemsHash.end())
-        return NULL;
-
-    return *it;
+    sDebug() << "Destroyed " << uuid;
+    emit destroyed(uuid);
 }
 
 /*!
  * \internal
  *
- * Returns a list of all items in this cloud.
+ * Retrieves a list of all items in this cloud.
  */
 QList<SCloudItem *> SCloudStorage::items() const
 {
-   return d->mItems;
+    return d->mItems;
 }
