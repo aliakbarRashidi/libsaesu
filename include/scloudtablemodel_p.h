@@ -34,6 +34,7 @@ public:
     SCloudTableModel *q;
     SCloudStorage *mCloud;
     QList<QString> mColumnNames;
+    QList<QString> mRows;
 
 public slots:
     void onItemCreated(const QString &uuid);

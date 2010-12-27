@@ -24,15 +24,32 @@ SCloudTableModel::Private::Private(SCloudTableModel *parent, SCloudStorage *clou
     , q(parent)
     , mCloud(cloud)
 {
+    foreach (const QString &uuid, mCloud->itemUUIDs())
+        mRows.append(uuid);
 }
 
 void SCloudTableModel::Private::onItemCreated(const QString &uuid)
 {
+    sDebug() << "Item inserted: " << uuid;
+    q->beginInsertRows(QModelIndex(), mRows.count(), mRows.count());
+    mRows.append(uuid);
+    q->endInsertRows();
 }
 
 void SCloudTableModel::Private::onItemDestroyed(const QString &uuid)
 {
+    int rowNumber = 0;
 
+    foreach (const QString &rowuuid, mRows) {
+        if (rowuuid == uuid)
+            break;
+
+        rowNumber++;
+    }
+
+    q->beginRemoveRows(QModelIndex(), rowNumber, rowNumber);
+    mRows.removeAt(rowNumber);
+    q->endRemoveRows();
 }
 
 void SCloudTableModel::Private::onItemChanged(const QString &uuid, const QString &fieldName)
@@ -41,8 +58,8 @@ void SCloudTableModel::Private::onItemChanged(const QString &uuid, const QString
     int rowNumber = 0;
     int colNumber = 0;
 
-    foreach (SCloudItem *item, mCloud->items()) {
-        if (item->mUuid == uuid)
+    foreach (const QString &rowuuid, mRows) {
+        if (rowuuid == uuid)
             break;
 
         rowNumber++;

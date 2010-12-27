@@ -65,7 +65,7 @@ int SCloudTableModel::rowCount(const QModelIndex &parent) const
     if (parent != QModelIndex())
         return 0;
 
-    return d->mCloud->items().count();
+    return d->mRows.count();
 }
 
 int SCloudTableModel::columnCount(const QModelIndex &parent) const
@@ -82,19 +82,19 @@ QVariant SCloudTableModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
-    if (index.row() < 0 || index.row() >= d->mCloud->items().count())
+    if (index.row() < 0 || index.row() >= d->mRows.count())
         return QVariant();
 
     if (index.column() < 0 || index.column() >= d->mColumnNames.count())
         return QVariant();
 
     if (index.column() == 0) {
-        // special case
-        return d->mCloud->items()[index.row()]->mUuid;
+        // special case: return uuid
+        return d->mRows[index.row()];
     } else {
         const QString &propName = d->mColumnNames.at(index.column());
 
-        return d->mCloud->items()[index.row()]->mFields[propName];
+        return d->mCloud->get(d->mRows[index.row()], propName);
     }
 }
 
@@ -107,20 +107,20 @@ bool SCloudTableModel::setData(const QModelIndex &index, const QVariant &value, 
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return false; // huh?
 
-    if (index.row() < 0 || index.row() >= d->mCloud->items().count())
+    if (index.row() < 0 || index.row() >= d->mRows.count())
         return false;
 
     if (index.column() < 0 || index.column() >= d->mColumnNames.count())
         return false;
 
     const QString &propName = d->mColumnNames.at(index.column());
-    d->mCloud->set(d->mCloud->items()[index.row()]->mUuid, propName, value);
+    d->mCloud->set(d->mRows[index.row()], propName, value);
     return true;
 }
 
 Qt::ItemFlags  SCloudTableModel::flags(const QModelIndex &index) const
 {
-    if (index.row() < 0 || index.row() >= d->mCloud->items().count())
+    if (index.row() < 0 || index.row() >= d->mRows.count())
         return 0;
 
     if (index.column() < 0 || index.column() >= d->mColumnNames.count())

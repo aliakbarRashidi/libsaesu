@@ -47,7 +47,6 @@ public:
 
     SCloudStorage *q;
     QString mCloudName;
-    QList<SCloudItem *> mItems;
     QHash<QString, SCloudItem *> mItemsHash;
     SIpcChannel *mLocalIpcChannel;
     bool mProcessingIpc;

@@ -86,8 +86,9 @@ SCloudStorage *SCloudStorage::instance(const QString &cloudName)
  */
 void SCloudStorage::load()
 {
-    qDeleteAll(d->mItems);
-    d->mItems.clear();
+    // TODO: we should probably provide a reset() signal or something, which we could use to clear state
+    if (S_VERIFY(d->mItemsHash.count() == 0, "load on an already loaded cloud!"))
+        return;
 
     QFile f(d->mCloudName + "_cloud");
     f.open(QIODevice::ReadOnly);
@@ -117,7 +118,6 @@ void SCloudStorage::load()
         SCloudItem *item = new SCloudItem;
         stream >> *item;
         sDebug() << *item;
-        d->mItems.append(item);
         d->mItemsHash.insert(item->mUuid, item);
     }
 }
@@ -135,9 +135,9 @@ void SCloudStorage::save()
 
     stream << (quint32)0xDEAAFFEB; // header
     stream << (quint8)0; // version
-    stream << (quint32)d->mItems.count();
+    stream << (quint32)d->mItemsHash.count();
 
-    foreach (SCloudItem *item, d->mItems)
+    foreach (SCloudItem *item, d->mItemsHash)
         stream << *item;
 
     QFile f(d->mCloudName + "_cloud");
@@ -223,12 +223,12 @@ void SCloudStorage::destroy(const QString &uuid)
     delete item;
 }
 
-/*!
- * \internal
- *
- * Retrieves a list of all items in this cloud.
- */
-QList<SCloudItem *> SCloudStorage::items() const
+QList<QString> SCloudStorage::itemUUIDs() const
 {
-    return d->mItems;
+    QList<QString> itemIds;
+
+    foreach (SCloudItem *item, d->mItemsHash)
+        itemIds.append(item->mUuid);
+
+    return itemIds;
 }

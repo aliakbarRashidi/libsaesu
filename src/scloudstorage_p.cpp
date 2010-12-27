@@ -38,8 +38,7 @@ SCloudStorage::Private::Private(SCloudStorage *parent, const QString &cloudName)
 
 SCloudStorage::Private::~Private()
 {
-    qDeleteAll(mItems);
-    mItems.clear();
+    qDeleteAll(mItemsHash);
     mItemsHash.clear();
 }
 
@@ -122,7 +121,6 @@ void SCloudStorage::Private::doSendLocalChanged(const QString &uuid, const QStri
 
 void SCloudStorage::Private::insertItem(SCloudItem *item)
 {
-    mItems.append(item);
     mItemsHash.insert(item->mUuid, item);
     emit created(item->mUuid);
     sDebug() << "Inserted " << item->mUuid;
@@ -130,7 +128,6 @@ void SCloudStorage::Private::insertItem(SCloudItem *item)
 
 void SCloudStorage::Private::removeItem(SCloudItem *item)
 {
-    mItems.removeAll(item);
     mItemsHash.remove(item->mUuid);
     emit destroyed(item->mUuid);
     sDebug() << "Removed " << item->mUuid;

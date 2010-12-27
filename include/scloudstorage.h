@@ -40,8 +40,7 @@ public:
     QString create();
     void destroy(const QString &uuid);
 
-    // not public API!
-    QList<SCloudItem *> items() const;
+    QList<QString> itemUUIDs() const;
 
 signals:
     void changed(const QString &uuid, const QString &fieldName);
