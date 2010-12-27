@@ -24,6 +24,9 @@
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
 
+// Us
+#include "scloudstorage.h"
+class SIpcChannel;
 struct SCloudItem
 {
     // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
@@ -33,18 +36,34 @@ struct SCloudItem
 
 QDataStream &operator<<(QDataStream &out, const SCloudItem &item);
 QDataStream &operator>>(QDataStream &in, SCloudItem &item);
-QDebug operator<<(QDebug dbg, const SCloudItem &item);
+QDebug operator<<(QDebug dbg, const SCloudItem &item3);
 
-class SCloudStorage::Private
+class SCloudStorage::Private : public QObject
 {
+    Q_OBJECT
 public:
-    Private(const QString &cloudName);
+    Private(SCloudStorage *parent, const QString &cloudName);
     virtual ~Private();
 
+    SCloudStorage *q;
     QString mCloudName;
-
     QList<SCloudItem *> mItems;
     QHash<QString, SCloudItem *> mItemsHash;
+    SIpcChannel *mLocalIpcChannel;
+    bool mProcessingIpc;
+
+    void insertItem(SCloudItem *item);
+    void removeItem(SCloudItem *item);
+
+signals:
+    void created(const QString &uuid);
+    void destroyed(const QString &uuid);
+
+private slots:
+    void onLocalIpcMessage(const QString &message, const QByteArray &data);
+    void doSendLocalCreated(const QString &uuid);
+    void doSendLocalDestroyed(const QString &uuid);
+    void doSendLocalChanged(const QString &uuid, const QString &fieldName);
 };
 
 #endif // SCLOUDSTORAGE_P_H

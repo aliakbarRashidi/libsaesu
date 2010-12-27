@@ -46,15 +46,16 @@
  */
 SCloudStorage::SCloudStorage(const QString &cloudName, QObject *parent)
     : QObject(parent)
-    , d(new Private(cloudName))
+    , d(new Private(this, cloudName))
 {
+    connect(d, SIGNAL(created(QString)), SIGNAL(created(QString)));
+    connect(d, SIGNAL(destroyed(QString)), SIGNAL(destroyed(QString)));
     load();
 }
 
 SCloudStorage::~SCloudStorage()
 {
     save();
-    delete d;
 }
 
 /*! Retrieves a cloud storage instance matching the given \a cloudName.
@@ -170,14 +171,20 @@ void SCloudStorage::set(const QString &uuid, const QString &field, const QVarian
     item->mFields[field] = data;
 
     sDebug() << "Changed " << uuid << " field: " << field << " to " << data;
-    emit changed(uuid);
+
+    // XXX: this is going to be terrible for performance, but, until we figure out a way
+    // to synchronise with other local processes who haven't saved state, just saving the database
+    // means no data loss when starting another process after having been running for a while
+    save();
+
+    emit changed(uuid, field);
 }
 
 /*!
  * Creates a new item of data with a unique identifier.
  * Returns the unique identifier for this data.
  */
-QString SCloudStorage::create(const QHash<QString, QVariant> &fields)
+QString SCloudStorage::create()
 {
     SCloudItem *item = new SCloudItem;
 
@@ -199,11 +206,7 @@ QString SCloudStorage::create(const QHash<QString, QVariant> &fields)
             qCritical("SCloudStorage: either a morbidly large cloud or a broken UUID generator, panic!");
     }
 
-    d->mItems.append(item);
-    d->mItemsHash.insert(item->mUuid, item);
-
-    sDebug() << "Created " << item->mUuid << "(" << fields << ")";
-    emit created(item->mUuid);
+    d->insertItem(item);
     return item->mUuid;
 }
 
@@ -216,12 +219,8 @@ void SCloudStorage::destroy(const QString &uuid)
         return;
 
     SCloudItem *item = *(d->mItemsHash.find(uuid));
-    d->mItems.removeAll(item);
-    d->mItemsHash.remove(uuid);
+    d->removeItem(item);
     delete item;
-
-    sDebug() << "Destroyed " << uuid;
-    emit destroyed(uuid);
 }
 
 /*!

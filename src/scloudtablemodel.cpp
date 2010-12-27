@@ -26,8 +26,12 @@
 
 SCloudTableModel::SCloudTableModel(SCloudStorage *cloud, QObject *parent)
     : QAbstractItemModel(parent)
-    , d(new Private(cloud))
+    , d(new Private(this, cloud))
 {
+    connect(cloud, SIGNAL(created(QString)), d, SLOT(onItemCreated(QString)));
+    connect(cloud, SIGNAL(destroyed(QString)), d, SLOT(onItemDestroyed(QString)));
+    connect(cloud, SIGNAL(changed(QString, QString)), d, SLOT(onItemChanged(QString, QString)));
+    connect(d, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 }
 
 void SCloudTableModel::setColumns(const QList<QString> &columns)

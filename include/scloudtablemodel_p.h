@@ -18,17 +18,30 @@
 #ifndef SCLOUDTABLEMODEL_P_H
 #define SCLOUDTABLEMODEL_P_H
 
+// Qt
+#include <QtCore/QObject>
+
 // Us
 #include "scloudtablemodel.h"
 class SCloudItem;
 
-class SCloudTableModel::Private
+class SCloudTableModel::Private : public QObject
 {
+    Q_OBJECT
 public:
-    Private(SCloudStorage *cloud);
+    Private(SCloudTableModel *parent, SCloudStorage *cloud);
 
+    SCloudTableModel *q;
     SCloudStorage *mCloud;
     QList<QString> mColumnNames;
+
+public slots:
+    void onItemCreated(const QString &uuid);
+    void onItemDestroyed(const QString &uuid);
+    void onItemChanged(const QString &uuid, const QString &fieldName);
+
+signals:
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 #endif // SCLOUDTABLEMODEL_P_H

@@ -15,9 +15,47 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "scloudstorage_p.h"
+#include "scloudtablemodel.h"
 #include "scloudtablemodel_p.h"
 
-SCloudTableModel::Private::Private(SCloudStorage *cloud)
-    : mCloud(cloud)
+SCloudTableModel::Private::Private(SCloudTableModel *parent, SCloudStorage *cloud)
+    : QObject(parent)
+    , q(parent)
+    , mCloud(cloud)
 {
+}
+
+void SCloudTableModel::Private::onItemCreated(const QString &uuid)
+{
+}
+
+void SCloudTableModel::Private::onItemDestroyed(const QString &uuid)
+{
+
+}
+
+void SCloudTableModel::Private::onItemChanged(const QString &uuid, const QString &fieldName)
+{
+    // find the coords
+    int rowNumber = 0;
+    int colNumber = 0;
+
+    foreach (SCloudItem *item, mCloud->items()) {
+        if (item->mUuid == uuid)
+            break;
+
+        rowNumber++;
+    }
+
+    foreach (const QString &colName, mColumnNames) {
+        if (colName == fieldName)
+            break;
+
+        colNumber++;
+    }
+
+    sDebug() << "Data changed on UUID " << uuid << " row number " << rowNumber << ":" << colNumber;
+    emit dataChanged(q->index(rowNumber, colNumber, QModelIndex()),
+                     q->index(rowNumber, colNumber, QModelIndex()));
 }

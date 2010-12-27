@@ -37,15 +37,14 @@ public:
 
     QVariant get(const QString &uuid, const QString &field) const;
     void set(const QString &uuid, const QString &field, const QVariant &data);
-    QString create(const QHash<QString, QVariant> &fields = QHash<QString, QVariant>());
+    QString create();
     void destroy(const QString &uuid);
 
     // not public API!
     QList<SCloudItem *> items() const;
 
 signals:
-    // TODO: coalesce changes
-    void changed(const QString &uuid);
+    void changed(const QString &uuid, const QString &fieldName);
     void created(const QString &uuid);
     void destroyed(const QString &uuid);
 
