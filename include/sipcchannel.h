@@ -40,8 +40,11 @@ public:
     bool sendMessage(const QString &message, const QByteArray &data);
     bool sendMessage(const QString &message);
 
+    bool isServer() const;
+
 signals:
     void received(const QString &message, const QByteArray &data);
+    void becameServer();
 
 private:
     class Private;

@@ -15,7 +15,8 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QLocalSocket>
+#include <QtNetwork/QLocalSocket>
+#include <QtCore/QTimer>
 
 // Us
 #include "sipcchannel.h"
@@ -25,6 +26,8 @@ SIpcChannel::SIpcChannel(const QString &channelName, QObject *parent)
     : QObject(parent)
     , d(new Private(channelName, this))
 {
+    connect(d, SIGNAL(becameServer()), SIGNAL(becameServer()));
+    QTimer::singleShot(0, d, SLOT(reconnect())); // slot, because we want creator of SIpcChannel to be able to connect signals.
 }
 
 const QString &SIpcChannel::channel() const
@@ -65,3 +68,16 @@ bool SIpcChannel::sendMessage(const QString &message, const QByteArray &data)
     return true;
 }
 
+/*!
+ * Determines whether or not this SIpcChannel instance is the server.
+ * A server instance is one which other channel instances connect to.
+ *
+ * If the server instance is destroyed, then another instance of SIpcChannel
+ * will take over server duties locally, emitting becameServer() at the same time.
+ *
+ * \sa becameServer()
+ */
+bool SIpcChannel::isServer() const
+{
+    return d->isServer();
+}

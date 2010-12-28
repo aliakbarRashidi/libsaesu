@@ -44,10 +44,11 @@ void SIpcConnection::reconnect()
         // XXX: this is going to hurt if it blocks hard
         // what would be nice would be a QLocalServer::isRegistered(const QString &name)
         if (!waitForConnected()) {
-            if (mServerInstance && mServerInstance->isListening())
+            if (isServer() && mServerInstance->isListening())
                 qCritical("reconnect(): WTF: Couldn't connect when I was running the fucking server?");
                 
             mServerInstance = new SIpcServer(this);
+            emit becameServer();
         } else {
             // connected, introduce ourselves
             setChannelName(mChannelName);
@@ -68,7 +69,7 @@ void SIpcConnection::onReadyRead()
 
         // read mBytesExpected and emit message arrived
         QByteArray bytes = read(mBytesExpected);
-        Q_ASSERT(bytes.length() == mBytesExpected);
+        Q_ASSERT((quint32)bytes.length() == mBytesExpected);
         
         processData(bytes);
         mBytesExpected = 0;
@@ -168,3 +169,7 @@ void SIpcConnection::sendMessage(const QString &message, const QByteArray &data)
     sDebug() << "Sent message to " << mChannelName;
 }
 
+bool SIpcConnection::isServer() const
+{
+    return mServerInstance != 0;
+}

@@ -42,9 +42,12 @@ public:
     
     void sendMessage(const QString &message, const QByteArray &data);
 
+    bool isServer() const;
+
 signals:
     void channelNameSet(const QString &channelName);
     void messageArrived(const QString &message, const QByteArray &data);
+    void becameServer();
     
 public slots:
     void reconnect();

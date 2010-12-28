@@ -37,10 +37,18 @@ public:
     
     const QString &channelName() const;
     void sendMessage(const QString &message, const QByteArray &data);
+
+    bool isServer() const;
+
+public slots:
+    void reconnect();
+
+signals:
+    void becameServer();
     
 private slots:
     void onMessageArrived(const QString &message, const QByteArray &data);
-    
+
 private:
     SIpcChannel *q;
 };

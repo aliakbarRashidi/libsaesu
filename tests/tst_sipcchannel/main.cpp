@@ -93,4 +93,34 @@ void tst_SIpcChannel::send() const
     QCOMPARE(arguments.at(1).toString(), QLatin1String("there"));
 }
 
+void tst_SIpcChannel::isServer() const
+{
+    {
+        SIpcChannel test("test");
+        QVERIFY(test.isServer());
+
+        // creating another instance shouldn't kill it
+        SIpcChannel testtwo("test");
+        QVERIFY(test.isServer());
+        QVERIFY(!testtwo.isServer());
+    }
+
+    {
+        SIpcChannel *test = new SIpcChannel("test");
+        QVERIFY(test->isServer());
+
+        SIpcChannel *testtwo = new SIpcChannel("testtwo");
+        QSignalSpy spy(testtwo, SIGNAL(becameServer()));
+        QVERIFY(test->isServer());
+        QVERIFY(!testtwo->isServer());
+
+        // now delete test
+        delete test;
+        QTest::qWait(500);
+
+        QVERIFY(testtwo->isServer());
+        QCOMPARE(spy.count(), 1); // verify becameServer emitted ok
+    }
+}
+
 QTEST_MAIN(tst_SIpcChannel)

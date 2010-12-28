@@ -28,6 +28,7 @@ private slots:
     void channel() const;
     void receive() const;
     void send() const;
+    void isServer() const;
 };
 
 class TestRecieverSink : public SIpcChannel

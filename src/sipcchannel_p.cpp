@@ -28,10 +28,10 @@ SIpcChannel::Private::Private(const QString &channelName, SIpcChannel *parent)
     , mConnection(new SIpcConnection(this))
     , q(parent)
 {
+    connect(mConnection, SIGNAL(becameServer()), SIGNAL(becameServer()));
     connect(mConnection, SIGNAL(messageArrived(const QString &, const QByteArray &)),
                          SLOT(onMessageArrived(const QString &, const QByteArray &)));
     mConnection->setChannelName(channelName);
-    mConnection->reconnect();
 }
 
 const QString &SIpcChannel::Private::channelName() const
@@ -47,4 +47,14 @@ void SIpcChannel::Private::sendMessage(const QString &message, const QByteArray 
 void SIpcChannel::Private::onMessageArrived(const QString &message, const QByteArray &data)
 {
     q->receive(message, data);
+}
+
+bool SIpcChannel::Private::isServer() const
+{
+    return mConnection->isServer();
+}
+
+void SIpcChannel::Private::reconnect()
+{
+    mConnection->reconnect();
 }
