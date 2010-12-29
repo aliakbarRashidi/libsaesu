@@ -22,6 +22,10 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QCryptographicHash>
+#include <QtCore/QDateTime>
+#include <QtGui/QDesktopServices>
 
 // Us
 #include "scloudstorage.h"
@@ -58,6 +62,27 @@ SCloudStorage::~SCloudStorage()
     save();
 }
 
+static QString s_cloudPath(const QString &cloudName)
+{
+    QCoreApplication *a = QCoreApplication::instance();
+
+    QString orgName = a->organizationName();
+    QString appName = a->applicationName();
+
+    a->setOrganizationName(QLatin1String("saesu"));
+    a->setApplicationName(QLatin1String("clouds"));
+
+    QString cloudPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+    a->setOrganizationName(orgName);
+    a->setApplicationName(appName);
+
+    QDir d;
+    d.mkpath(cloudPath);
+
+    return cloudPath + QLatin1Char('/') + cloudName + QLatin1String(".cloud");
+}
+
 /*! Retrieves a cloud storage instance matching the given \a cloudName.
  *
  * If the given \a cloudName does not exist, a new cloud is created and returned,
@@ -90,7 +115,7 @@ void SCloudStorage::load()
     if (S_VERIFY(d->mItemsHash.count() == 0, "load on an already loaded cloud!"))
         return;
 
-    QFile f(d->mCloudName + "_cloud");
+    QFile f(s_cloudPath(d->mCloudName));
     f.open(QIODevice::ReadOnly);
     QDataStream stream(&f); // TODO: is this safe?
 
@@ -140,7 +165,7 @@ void SCloudStorage::save()
     foreach (SCloudItem *item, d->mItemsHash)
         stream << *item;
 
-    QFile f(d->mCloudName + "_cloud");
+    QFile f(s_cloudPath(d->mCloudName));
     f.open(QIODevice::WriteOnly);
     f.write(bytes);
 
@@ -169,6 +194,14 @@ void SCloudStorage::set(const QString &uuid, const QString &field, const QVarian
 
     SCloudItem *item = *(d->mItemsHash.find(uuid));
     item->mFields[field] = data;
+    item->mTimeStamp = QDateTime::currentMSecsSinceEpoch();
+
+    QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+    foreach (const QVariant &fieldData, item->mFields)
+        hasher.addData(fieldData.toByteArray());
+
+    item->mHash = hasher.result();
 
     sDebug() << "Changed " << uuid << " field: " << field << " to " << data;
 
@@ -231,4 +264,29 @@ QList<QString> SCloudStorage::itemUUIDs() const
         itemIds.append(item->mUuid);
 
     return itemIds;
+}
+
+/*!
+ * Retrieves the hash of data associated with a given \a uuid.
+ */
+const QByteArray &SCloudStorage::hash(const QString &uuid)
+{
+    if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
+        return QByteArray(); // this should probably be fatal..
+
+    SCloudItem *item = *(d->mItemsHash.find(uuid));
+    return item->mHash;
+}
+
+/*!
+ * Retrieves the modification time (in milliseconds since the epoch)
+ * of the data of a given \a uuid.
+ */
+quint64 SCloudStorage::modifiedAt(const QString &uuid)
+{
+    if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
+        return 0; // this should probably be fatal..
+
+    SCloudItem *item = *(d->mItemsHash.find(uuid));
+    return item->mTimeStamp;
 }

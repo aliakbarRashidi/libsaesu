@@ -31,6 +31,8 @@ struct SCloudItem
 {
     // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
     QString mUuid;
+    quint64 mTimeStamp;
+    QByteArray mHash;
     QHash<QString, QVariant> mFields;
 };
 

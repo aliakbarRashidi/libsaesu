@@ -136,21 +136,21 @@ void SCloudStorage::Private::removeItem(SCloudItem *item)
 QDataStream &operator<<(QDataStream &out, const SCloudItem &item)
 {
     sDebug() << "Persisting item " << item.mUuid << item.mFields;
-    out << item.mUuid << item.mFields;
+    out << item.mUuid;
+    out << item.mTimeStamp;
+    out << item.mHash;
+    out << item.mFields;
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, SCloudItem &item)
 {
-    QString uuid;
-    QHash<QString, QVariant> fields;
+    in >> item.mUuid;
+    in >> item.mTimeStamp;
+    in >> item.mHash;
+    in >> item.mFields;
 
-    in >> uuid >> fields;
-
-    item.mUuid = uuid;
-    item.mFields = fields;
-
-    sDebug() << "Loaded " << uuid << fields;
+    sDebug() << "Loaded " << item.mUuid << item.mFields;
     //return in >> item.mUuid >> item.mFields;
     return in;
 }

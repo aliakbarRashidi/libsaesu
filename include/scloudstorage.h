@@ -40,6 +40,10 @@ public:
     QString create();
     void destroy(const QString &uuid);
 
+    // for sync stuff
+    const QByteArray &hash(const QString &uuid);
+    quint64 modifiedAt(const QString &uuid);
+
     QList<QString> itemUUIDs() const;
 
 signals:

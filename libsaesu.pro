@@ -1,7 +1,6 @@
 QT += network
 CONFIG += create_pc create_prl
 
-QT -= gui
 TEMPLATE = lib
 TARGET = saesu
 DEPENDPATH += . include src
