@@ -142,8 +142,7 @@ void SCloudStorage::load()
     for (quint32 i = 0; i < itemsCount; ++i) {
         SCloudItem *item = new SCloudItem;
         stream >> *item;
-        sDebug() << *item;
-        d->mItemsHash.insert(item->mUuid, item);
+        insertItem(item);
     }
 }
 
@@ -301,4 +300,26 @@ quint64 SCloudStorage::modifiedAt(const QUuid &uuid)
 
     SCloudItem *item = *(d->mItemsHash.find(uuid));
     return item->mTimeStamp;
+}
+
+/*!
+ * \internal
+ *
+ * Retrieves the item associated with a given UUID.
+ * This is used for synchronisation.
+ */
+SCloudItem *SCloudStorage::item(const QUuid &uuid) const
+{
+    return *(d->mItemsHash.find(uuid));
+}
+
+/*!
+ * \internal
+ *
+ * Adds a given item to the cloud.
+ * This is used for synchronisation.
+ */
+void SCloudStorage::insertItem(SCloudItem *item)
+{
+    d->mItemsHash.insert(item->mUuid, item);
 }

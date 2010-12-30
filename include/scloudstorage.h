@@ -25,7 +25,25 @@
 
 // Us
 #include "sglobal.h"
-class SCloudItem;
+
+// XXX:
+// THIS IS NOT PUBLIC API.
+// It is here for synchronisation to work.
+// TODO: find a better way to do this.
+struct SCloudItem
+{
+    // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
+    QUuid mUuid;
+    quint64 mTimeStamp;
+    QByteArray mHash;
+    QHash<QString, QVariant> mFields;
+};
+
+QDataStream &operator<<(QDataStream &out, const SCloudItem &item);
+QDataStream &operator>>(QDataStream &in, SCloudItem &item);
+QDebug operator<<(QDebug dbg, const SCloudItem &item3);
+// END HACK
+
 
 class SCloudStorage : public QObject
 {
@@ -37,6 +55,8 @@ public:
     void save();
 
     bool hasItem(const QUuid &uuid) const;
+    SCloudItem *item(const QUuid &uuid) const;
+    void insertItem(SCloudItem *item);
 
     QVariant get(const QUuid &uuid, const QString &field) const;
     void set(const QUuid &uuid, const QString &field, const QVariant &data);

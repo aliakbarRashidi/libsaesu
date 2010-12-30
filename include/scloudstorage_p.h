@@ -28,18 +28,6 @@
 // Us
 #include "scloudstorage.h"
 class SIpcChannel;
-struct SCloudItem
-{
-    // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
-    QUuid mUuid;
-    quint64 mTimeStamp;
-    QByteArray mHash;
-    QHash<QString, QVariant> mFields;
-};
-
-QDataStream &operator<<(QDataStream &out, const SCloudItem &item);
-QDataStream &operator>>(QDataStream &in, SCloudItem &item);
-QDebug operator<<(QDebug dbg, const SCloudItem &item3);
 
 class SCloudStorage::Private : public QObject
 {
