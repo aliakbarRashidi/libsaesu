@@ -31,9 +31,9 @@ SCloudStorage::Private::Private(SCloudStorage *parent, const QString &cloudName)
     , mProcessingIpc(false)
 {
     connect(mLocalIpcChannel, SIGNAL(received(QString,QByteArray)), this, SLOT(onLocalIpcMessage(QString,QByteArray)));
-    connect(q, SIGNAL(created(QString)), this, SLOT(doSendLocalCreated(QString)));
-    connect(q, SIGNAL(destroyed(QString)), this, SLOT(doSendLocalDestroyed(QString)));
-    connect(q, SIGNAL(changed(QString, QString)), this, SLOT(doSendLocalChanged(QString, QString)));
+    connect(q, SIGNAL(created(QUuid)), this, SLOT(doSendLocalCreated(QUuid)));
+    connect(q, SIGNAL(destroyed(QUuid)), this, SLOT(doSendLocalDestroyed(QUuid)));
+    connect(q, SIGNAL(changed(QUuid, QString)), this, SLOT(doSendLocalChanged(QUuid, QString)));
 }
 
 SCloudStorage::Private::~Private()
@@ -47,17 +47,17 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
     mProcessingIpc = true;
 
     QDataStream stream(data);
-    QString uuid;
+    QUuid uuid;
     stream >> uuid;
 
-    if (message == "created(QString)") {
+    if (message == "created(QUuid)") {
         sDebug() << "Informed about creation of " << uuid;
         SCloudItem *item = new SCloudItem;
         item->mUuid = uuid;
         insertItem(item);
-    } else if (message == "destroyed(QString") {
+    } else if (message == "destroyed(QUuid") {
         sDebug() << "Informed about destruction of " << uuid;
-    } else if (message == "changed(QString)") {
+    } else if (message == "changed(QUuid)") {
         QString fieldName;
         QVariant value;
 
@@ -71,7 +71,7 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
     mProcessingIpc = false;
 }
 
-void SCloudStorage::Private::doSendLocalCreated(const QString &uuid)
+void SCloudStorage::Private::doSendLocalCreated(const QUuid &uuid)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -83,10 +83,10 @@ void SCloudStorage::Private::doSendLocalCreated(const QString &uuid)
     stream << uuid;
 
     sDebug() << "Notifying about creation of " << uuid;
-    mLocalIpcChannel->sendMessage("created(QString)", data);
+    mLocalIpcChannel->sendMessage("created(QUuid)", data);
 }
 
-void SCloudStorage::Private::doSendLocalDestroyed(const QString &uuid)
+void SCloudStorage::Private::doSendLocalDestroyed(const QUuid &uuid)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -98,10 +98,10 @@ void SCloudStorage::Private::doSendLocalDestroyed(const QString &uuid)
     stream << uuid;
 
     sDebug() << "Notifying about destruction of " << uuid;
-    mLocalIpcChannel->sendMessage("destroyed(QString)", data);
+    mLocalIpcChannel->sendMessage("destroyed(QUuid)", data);
 }
 
-void SCloudStorage::Private::doSendLocalChanged(const QString &uuid, const QString &fieldName)
+void SCloudStorage::Private::doSendLocalChanged(const QUuid &uuid, const QString &fieldName)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -116,7 +116,7 @@ void SCloudStorage::Private::doSendLocalChanged(const QString &uuid, const QStri
     stream << item->mFields[fieldName];
 
     sDebug() << "Notifying about change of " << fieldName << " on " << uuid;
-    mLocalIpcChannel->sendMessage("changed(QString)", data);
+    mLocalIpcChannel->sendMessage("changed(QUuid)", data);
 }
 
 void SCloudStorage::Private::insertItem(SCloudItem *item)

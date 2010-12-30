@@ -52,8 +52,8 @@ SCloudStorage::SCloudStorage(const QString &cloudName, QObject *parent)
     : QObject(parent)
     , d(new Private(this, cloudName))
 {
-    connect(d, SIGNAL(created(QString)), SIGNAL(created(QString)));
-    connect(d, SIGNAL(destroyed(QString)), SIGNAL(destroyed(QString)));
+    connect(d, SIGNAL(created(QUuid)), SIGNAL(created(QUuid)));
+    connect(d, SIGNAL(destroyed(QUuid)), SIGNAL(destroyed(QUuid)));
     load();
 }
 
@@ -173,9 +173,22 @@ void SCloudStorage::save()
 }
 
 /*!
+ * Checks whether or not the cloud contains the item with the given \a uuid
+ *
+ * Returns true if the cloud contains this uuid.
+ */
+bool SCloudStorage::hasItem(const QUuid &uuid) const
+{
+    if (d->mItemsHash.find(uuid) == d->mItemsHash.end())
+        return false;
+
+    return true;
+}
+
+/*!
  * Retrieves a given \a field from a \a UUID.
  */
-QVariant SCloudStorage::get(const QString &uuid, const QString &field) const
+QVariant SCloudStorage::get(const QUuid &uuid, const QString &field) const
 {
     if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return QVariant();
@@ -187,7 +200,7 @@ QVariant SCloudStorage::get(const QString &uuid, const QString &field) const
 /*!
  * Sets a \a field to \a data on a given \a uuid.
  */
-void SCloudStorage::set(const QString &uuid, const QString &field, const QVariant &data)
+void SCloudStorage::set(const QUuid &uuid, const QString &field, const QVariant &data)
 {
     if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return;
@@ -217,17 +230,16 @@ void SCloudStorage::set(const QString &uuid, const QString &field, const QVarian
  * Creates a new item of data with a unique identifier.
  * Returns the unique identifier for this data.
  */
-QString SCloudStorage::create()
+const QUuid &SCloudStorage::create()
 {
     SCloudItem *item = new SCloudItem;
 
     // hehe.. let's hope it isn't forever!
     int tries = 0;
     forever {
-        item->mUuid = QUuid::createUuid().toString();
-        item->mUuid= item->mUuid.mid(1, item->mUuid.length() - 2);
+        item->mUuid = QUuid::createUuid();
 
-        if (d->mItemsHash.find(item->mUuid) == d->mItemsHash.end())
+        if (d->mItemsHash.find(item->mUuid.toString()) == d->mItemsHash.end())
             break;
 
         // paranoia
@@ -246,7 +258,7 @@ QString SCloudStorage::create()
 /*!
  * Destroys the data associated with a given \a uuid, removing it from the cloud.
  */
-void SCloudStorage::destroy(const QString &uuid)
+void SCloudStorage::destroy(const QUuid &uuid)
 {
     if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return;
@@ -256,9 +268,9 @@ void SCloudStorage::destroy(const QString &uuid)
     delete item;
 }
 
-QList<QString> SCloudStorage::itemUUIDs() const
+QList<QUuid> SCloudStorage::itemUUIDs() const
 {
-    QList<QString> itemIds;
+    QList<QUuid> itemIds;
 
     foreach (SCloudItem *item, d->mItemsHash)
         itemIds.append(item->mUuid);
@@ -269,7 +281,7 @@ QList<QString> SCloudStorage::itemUUIDs() const
 /*!
  * Retrieves the hash of data associated with a given \a uuid.
  */
-const QByteArray &SCloudStorage::hash(const QString &uuid)
+const QByteArray &SCloudStorage::hash(const QUuid &uuid)
 {
     if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return QByteArray(); // this should probably be fatal..
@@ -282,7 +294,7 @@ const QByteArray &SCloudStorage::hash(const QString &uuid)
  * Retrieves the modification time (in milliseconds since the epoch)
  * of the data of a given \a uuid.
  */
-quint64 SCloudStorage::modifiedAt(const QString &uuid)
+quint64 SCloudStorage::modifiedAt(const QUuid &uuid)
 {
     if (S_VERIFY(d->mItemsHash.find(uuid) != d->mItemsHash.end(), "couldn't find item"))
         return 0; // this should probably be fatal..

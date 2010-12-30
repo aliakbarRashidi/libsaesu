@@ -21,6 +21,7 @@
 // Qt
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
+#include <QtCore/QUuid>
 
 // Us
 #include "sglobal.h"
@@ -35,21 +36,23 @@ public:
     void load();
     void save();
 
-    QVariant get(const QString &uuid, const QString &field) const;
-    void set(const QString &uuid, const QString &field, const QVariant &data);
-    QString create();
-    void destroy(const QString &uuid);
+    bool hasItem(const QUuid &uuid) const;
+
+    QVariant get(const QUuid &uuid, const QString &field) const;
+    void set(const QUuid &uuid, const QString &field, const QVariant &data);
+    const QUuid &create();
+    void destroy(const QUuid &uuid);
 
     // for sync stuff
-    const QByteArray &hash(const QString &uuid);
-    quint64 modifiedAt(const QString &uuid);
+    const QByteArray &hash(const QUuid &uuid);
+    quint64 modifiedAt(const QUuid &uuid);
 
-    QList<QString> itemUUIDs() const;
+    QList<QUuid> itemUUIDs() const;
 
 signals:
-    void changed(const QString &uuid, const QString &fieldName);
-    void created(const QString &uuid);
-    void destroyed(const QString &uuid);
+    void changed(const QUuid &uuid, const QString &fieldName);
+    void created(const QUuid &uuid);
+    void destroyed(const QUuid &uuid);
 
 private:
     SCloudStorage(const QString &cloudName, QObject *parent = 0);

@@ -20,6 +20,7 @@
 
 // Qt
 #include <QtCore/QObject>
+#include <QtCore/QUuid>
 
 // Us
 #include "scloudtablemodel.h"
@@ -34,12 +35,12 @@ public:
     SCloudTableModel *q;
     SCloudStorage *mCloud;
     QList<QString> mColumnNames;
-    QList<QString> mRows;
+    QList<QUuid> mRows;
 
 public slots:
-    void onItemCreated(const QString &uuid);
-    void onItemDestroyed(const QString &uuid);
-    void onItemChanged(const QString &uuid, const QString &fieldName);
+    void onItemCreated(const QUuid &uuid);
+    void onItemDestroyed(const QUuid &uuid);
+    void onItemChanged(const QUuid &uuid, const QString &fieldName);
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

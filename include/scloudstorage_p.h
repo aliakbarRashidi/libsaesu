@@ -23,6 +23,7 @@
 #include <QtCore/QList>
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
+#include <QtCore/QUuid>
 
 // Us
 #include "scloudstorage.h"
@@ -30,7 +31,7 @@ class SIpcChannel;
 struct SCloudItem
 {
     // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
-    QString mUuid;
+    QUuid mUuid;
     quint64 mTimeStamp;
     QByteArray mHash;
     QHash<QString, QVariant> mFields;
@@ -57,14 +58,14 @@ public:
     void removeItem(SCloudItem *item);
 
 signals:
-    void created(const QString &uuid);
-    void destroyed(const QString &uuid);
+    void created(const QUuid &uuid);
+    void destroyed(const QUuid &uuid);
 
 private slots:
     void onLocalIpcMessage(const QString &message, const QByteArray &data);
-    void doSendLocalCreated(const QString &uuid);
-    void doSendLocalDestroyed(const QString &uuid);
-    void doSendLocalChanged(const QString &uuid, const QString &fieldName);
+    void doSendLocalCreated(const QUuid &uuid);
+    void doSendLocalDestroyed(const QUuid &uuid);
+    void doSendLocalChanged(const QUuid &uuid, const QString &fieldName);
 };
 
 #endif // SCLOUDSTORAGE_P_H

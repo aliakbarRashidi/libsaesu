@@ -28,9 +28,9 @@ SCloudTableModel::SCloudTableModel(SCloudStorage *cloud, QObject *parent)
     : QAbstractItemModel(parent)
     , d(new Private(this, cloud))
 {
-    connect(cloud, SIGNAL(created(QString)), d, SLOT(onItemCreated(QString)));
-    connect(cloud, SIGNAL(destroyed(QString)), d, SLOT(onItemDestroyed(QString)));
-    connect(cloud, SIGNAL(changed(QString, QString)), d, SLOT(onItemChanged(QString, QString)));
+    connect(cloud, SIGNAL(created(QUuid)), d, SLOT(onItemCreated(QUuid)));
+    connect(cloud, SIGNAL(destroyed(QUuid)), d, SLOT(onItemDestroyed(QUuid)));
+    connect(cloud, SIGNAL(changed(QUuid, QString)), d, SLOT(onItemChanged(QUuid, QString)));
     connect(d, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 }
 
@@ -90,7 +90,7 @@ QVariant SCloudTableModel::data(const QModelIndex &index, int role) const
 
     if (index.column() == 0) {
         // special case: return uuid
-        return d->mRows[index.row()];
+        return d->mRows[index.row()].toString();
     } else {
         const QString &propName = d->mColumnNames.at(index.column());
 
