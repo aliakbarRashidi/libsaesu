@@ -13,7 +13,8 @@ OBJECTS_DIR = ./.obj/
 HEADERS += include/sglobal.h \
            include/sipcchannel.h \
            include/scloudstorage.h \
-           include/scloudtablemodel.h
+           include/scloudtablemodel.h \
+           include/sdbmdatabase.h
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
@@ -25,14 +26,17 @@ SOURCES += src/sipcchannel.cpp \
            src/scloudstorage.cpp \
            src/scloudstorage_p.cpp \
     src/scloudtablemodel.cpp \
-    src/scloudtablemodel_p.cpp
+    src/scloudtablemodel_p.cpp \
+    src/sdbmdatabase.cpp \
+    src/sdbmdatabase_p.cpp
 
 # private headers
 HEADERS += include/sipcchannel_p.h \
            include/sipcserver_p.h \
            include/sipcconnection_p.h \
            include/scloudstorage_p.h \
-    include/scloudtablemodel_p.h
+    include/scloudtablemodel_p.h \
+    include/sdbmdatabase_p.h
 
 target.path = /usr/lib
 
