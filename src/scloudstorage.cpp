@@ -142,7 +142,7 @@ void SCloudStorage::load()
     for (quint32 i = 0; i < itemsCount; ++i) {
         SCloudItem *item = new SCloudItem;
         stream >> *item;
-        insertItem(item);
+        d->insertItem(item);
     }
 }
 
@@ -321,5 +321,5 @@ SCloudItem *SCloudStorage::item(const QUuid &uuid) const
  */
 void SCloudStorage::insertItem(SCloudItem *item)
 {
-    d->mItemsHash.insert(item->mUuid, item);
+    d->insertItem(item);
 }
