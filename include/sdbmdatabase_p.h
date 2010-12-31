@@ -18,15 +18,18 @@
 #ifndef SDBMDATABASE_P_H
 #define SDBMDATABASE_P_H
 
+#include <QObject>
 #include <QHash>
 #include <QString>
 #include <QByteArray>
 #include <QDateTime>
+#include <QFileSystemWatcher>
 
 #include "sdbmdatabase.h"
 
-class SDBMDatabase::Private
+class SDBMDatabase::Private : public QObject
 {
+    Q_OBJECT
 public:
     Private(const QString &databaseDirPath);
 
@@ -44,8 +47,11 @@ public:
     QByteArray get(const QByteArray &key, bool *ok);
 
     QString mDatabaseDirPath;
-    QDateTime mIndexLastModified;
+    QFileSystemWatcher mFsWatcher;
     QHash<QByteArray, QPair<int, int> > mIndex;
+
+private slots:
+    void onIndexChanged();
 };
 
 #endif // SDBMDATABASE_P_H

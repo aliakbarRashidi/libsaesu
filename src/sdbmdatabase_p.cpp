@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2010 John Brooks <john.brooks@dereferenced.net>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,6 +16,7 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
 #include <qmath.h>
@@ -28,12 +30,128 @@ const int BlockSize = 256;
 // TODO: size/pos should be quint64
 // TODO: error checking
 
+// locking includes
+#ifdef Q_OS_UNIX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#else
+#error "Port me please"
+#endif
+
+class SDBMDatabaseLockFile
+{
+private:
+    bool m_locked;
+    QString m_path;
+    int fd;
+public:
+    SDBMDatabaseLockFile(const QString &p)
+        : m_locked(false)
+        , m_path(p)
+    {
+        acquire();
+    }
+
+    ~SDBMDatabaseLockFile()
+    {
+        release();
+    }
+
+    QString lockFile() const
+    {
+        return QDir::toNativeSeparators(m_path);
+    }
+
+    bool isLocked() const
+    {
+        return m_locked;
+    }
+
+#ifdef Q_OS_UNIX
+    int acquire()
+    {
+        if (isLocked()) {
+            sDebug() << "Already locked!";
+            return 1;
+        }
+
+        // try acquire a lock forever and ever
+        int tries = 0;
+        forever {
+            fd = open(lockFile().toLocal8Bit().constData(), O_RDWR | O_CREAT | O_TRUNC, 0600);
+            if (fd < 0) {
+                sDebug() << "Open failed: " << errno;
+                return -1;
+            }
+
+            struct flock lock;
+            memset(&lock, 0, sizeof(lock));
+            lock.l_type = F_WRLCK;
+            lock.l_whence = SEEK_SET;
+            if (fcntl(fd, F_SETLK, &lock) < 0) {
+                int err = errno;
+                close(fd);
+                if (err != EACCES && err != EAGAIN) {
+                    sDebug() << "UNKNOWN Error locking: " << errno;
+
+                    // we might want to return here, but then again, bad idea
+                    // if we continue without acquiring a lock, then we're subject to all sorts of odd races
+                    // i'd rather have an (easily found) infinite loop -> crash here rather than races.
+                    // return -1;
+                }
+
+                close(fd);
+
+                // try to get the lock again
+                QCoreApplication::processEvents();
+
+                tries++;
+
+                if (tries == 50) {
+                    sDebug() << "Tried 50 times to lock! What's going on?";
+                } else if (tries == 500) {
+                    qCritical("Can't acquire a lock, life is hard");
+                }
+            } else {
+                m_locked = true;
+                return 1;
+            }
+        }
+    }
+
+    void release()
+    {
+        if (!isLocked())
+            return;
+
+        close(fd);
+
+        /* Attempt to delete the lock file; it doesn't really matter if this fails */
+        unlink(lockFile().toLocal8Bit().constData());
+    }
+#else
+#error "port me please"
+#endif
+};
+
 SDBMDatabase::Private::Private(const QString &databaseDirPath)
     : mDatabaseDirPath(databaseDirPath)
 {
     QDir dirPath(databaseDirPath);
     if (!dirPath.exists())
         dirPath.mkpath(databaseDirPath);
+
+    readIndex();
+    writeIndex(); // this is a cheat's way of creating the file so QFSWatcher is happy
+    connect(&mFsWatcher, SIGNAL(fileChanged(QString)), SLOT(onIndexChanged()));
+    mFsWatcher.addPath(pathTo("db.idx"));
+}
+
+void SDBMDatabase::Private::onIndexChanged()
+{
+    readIndex();
 }
 
 QString SDBMDatabase::Private::pathTo(const QString &fileName) const
@@ -43,47 +161,37 @@ QString SDBMDatabase::Private::pathTo(const QString &fileName) const
 
 void SDBMDatabase::Private::readIndex()
 {
-    QFileInfo indexInfo(pathTo("db.idx"));
-    QDateTime idxLastModified = indexInfo.lastModified();
+    SDBMDatabaseLockFile lf(pathTo("db.lock"));
+    sDebug() << "Reading index";
+    mIndex.clear();
 
-    if (indexInfo.exists() && idxLastModified != mIndexLastModified) {
-        mIndex.clear();
+    // reparse index
+    QFile indexFile(pathTo("db.idx"));
+    indexFile.open(QFile::ReadOnly);
+    QDataStream stream(&indexFile);
 
-        // reparse index
-        QFile indexFile(pathTo("db.idx"));
-        indexFile.open(QFile::ReadOnly);
-        QDataStream stream(&indexFile);
-
-        stream >> mIndex;
-
-        foreach (const QByteArray &idx, mIndex.keys()) {
-            sDebug() << idx.toHex();
-        }
-
-        mIndexLastModified = idxLastModified;
-    }
+    stream >> mIndex;
+    sDebug() << "Read index of " << mIndex.count() << " items";
 }
 
 void SDBMDatabase::Private::writeIndex()
 {
+    SDBMDatabaseLockFile lf(pathTo("db.lock"));
+    sDebug() << "Writing index";
     QFile indexFile(pathTo("db.idx"));
     indexFile.open(QFile::WriteOnly);
     QDataStream stream(&indexFile);
-
     stream << mIndex;
+    sDebug() << "Index written";
 }
 
 bool SDBMDatabase::Private::hasItem(const QByteArray &key)
 {
-    readIndex();
-
     return (mIndex.find(key) != mIndex.end());
 }
 
 void SDBMDatabase::Private::remove(const QByteArray &key)
 {
-    readIndex();
-
     // don't touch the data file, just remove it from the index, and write out the new index.
     // as per the note with set() and padding, we should really have a free list to add the newly
     // freed blocks to.
@@ -99,7 +207,7 @@ void SDBMDatabase::Private::remove(const QByteArray &key)
 
 void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
 {
-    readIndex();
+    SDBMDatabaseLockFile lf(pathTo("db.lock"));
 
     // TODO: locking
     int valueBlockSize = qCeil(value.length() / BlockSize) + 1;
@@ -139,10 +247,9 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
     // in the end to avoid re-writing the entire store.
     QFile dataFile(pathTo("db.dat"));
     dataFile.open(QFile::ReadWrite);
-    sDebug() << "In an append, file is " << dataFile.size() << " bytes";
     dataFile.seek(dataFile.size());
 
-    sDebug() << "Appending at " << dataFile.size() << value.length() << " bytes";
+    sDebug() << "Appending at " << dataFile.size() << value.length() << " bytes for " << key.toHex();
 
     // before anything, note down the values for the index.
     QPair<int, int> ps;
@@ -156,16 +263,15 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
     QByteArray nulls((valueBlockSize * BlockSize) - value.length(), 0);
     dataFile.write(nulls);
 
-    sDebug() << "Padded with " << nulls.length() << " nulls";
-
     // update the index
     mIndex.insert(key, ps);
-    sDebug() << "Appended item " << key.toHex();
     writeIndex();
 }
 
 QByteArray SDBMDatabase::Private::get(const QByteArray &key, bool *ok)
 {
+    SDBMDatabaseLockFile lf(pathTo("db.lock"));
+
     if (!hasItem(key)) {
         *ok = false;
         sDebug() << "No such item: " << key.toHex();
@@ -185,6 +291,5 @@ QByteArray SDBMDatabase::Private::get(const QByteArray &key, bool *ok)
     dataFile.seek(pos);
     QByteArray data = dataFile.read(size); // TODO: allocate a QBA of size bytes and read into that, checking for error
     dataFile.close();
-    sDebug() << "Read item " << key.toHex() << data.length() << " bytes";
     return data;
 }
