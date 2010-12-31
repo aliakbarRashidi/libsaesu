@@ -33,7 +33,7 @@ public:
     void remove(const QByteArray &key);
     void set(const QByteArray &key, const QByteArray &value);
     QByteArray get(const QByteArray &key, bool *ok);
-    QList<QByteArray> keys() const;
+    const QList<QByteArray> &keys() const;
 
 private:
     class Private;

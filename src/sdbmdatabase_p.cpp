@@ -164,6 +164,7 @@ void SDBMDatabase::Private::readIndex()
     SDBMDatabaseLockFile lf(pathTo("db.lock"));
     sDebug() << "Reading index";
     mIndex.clear();
+    mKeys.clear();
 
     // reparse index
     QFile indexFile(pathTo("db.idx"));
@@ -171,6 +172,10 @@ void SDBMDatabase::Private::readIndex()
     QDataStream stream(&indexFile);
 
     stream >> mIndex;
+
+    foreach (const QByteArray &key, mIndex.keys())
+        mKeys.append(key);
+
     sDebug() << "Read index of " << mIndex.count() << " items";
 }
 
@@ -292,4 +297,9 @@ QByteArray SDBMDatabase::Private::get(const QByteArray &key, bool *ok)
     QByteArray data = dataFile.read(size); // TODO: allocate a QBA of size bytes and read into that, checking for error
     dataFile.close();
     return data;
+}
+
+const QList<QByteArray> &SDBMDatabase::Private::keys() const
+{
+    return mKeys;
 }

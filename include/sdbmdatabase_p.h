@@ -45,10 +45,12 @@ public:
     void remove(const QByteArray &key);
     void set(const QByteArray &key, const QByteArray &value);
     QByteArray get(const QByteArray &key, bool *ok);
+    const QList<QByteArray> &keys() const;
 
     QString mDatabaseDirPath;
     QFileSystemWatcher mFsWatcher;
     QHash<QByteArray, QPair<int, int> > mIndex;
+    QList<QByteArray> mKeys;
 
 private slots:
     void onIndexChanged();
