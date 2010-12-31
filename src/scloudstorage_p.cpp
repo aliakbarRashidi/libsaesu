@@ -73,20 +73,17 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
     stream >> uuid;
 
     if (message == "created(QByteArray)") {
-        sDebug() << "Informed about creation of " << uuid;
-        SCloudItem item;
-        saveItem(uuid, &item);
+        sDebug() << "Informed about creation of " << uuid.toHex();
+        emit created(uuid);
     } else if (message == "destroyed(QByteArray") {
-        sDebug() << "Informed about destruction of " << uuid;
+        sDebug() << "Informed about destruction of " << uuid.toHex();
+        emit destroyed(uuid);
     } else if (message == "changed(QByteArray)") {
         QString fieldName;
-        QVariant value;
 
         stream >> fieldName;
-        stream >> value;
-
-        q->set(uuid, fieldName, value);
-        sDebug() << "Read change for " << uuid << " to field " << fieldName;
+        emit changed(uuid, fieldName);
+        sDebug() << "Read change for " << uuid.toHex() << " to field " << fieldName;
     }
 
     mProcessingIpc = false;

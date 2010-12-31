@@ -50,6 +50,7 @@ SCloudStorage::SCloudStorage(const QString &cloudName, QObject *parent)
 {
     connect(d, SIGNAL(created(QByteArray)), SIGNAL(created(QByteArray)));
     connect(d, SIGNAL(destroyed(QByteArray)), SIGNAL(destroyed(QByteArray)));
+    connect(d, SIGNAL(changed(QByteArray,QString)), SIGNAL(changed(QByteArray,QString)));
 }
 
 SCloudStorage::~SCloudStorage()

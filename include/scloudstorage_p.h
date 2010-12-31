@@ -50,6 +50,7 @@ public:
     void removeItem(const QByteArray &uuid);
 
 signals:
+    void changed(const QByteArray &uuid, const QString &fieldName);
     void created(const QByteArray &uuid);
     void destroyed(const QByteArray &uuid);
 

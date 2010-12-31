@@ -30,7 +30,7 @@ SCloudTableModel::Private::Private(SCloudTableModel *parent, SCloudStorage *clou
 
 void SCloudTableModel::Private::onItemCreated(const QByteArray &uuid)
 {
-    sDebug() << "Item inserted: " << uuid;
+    sDebug() << "Item inserted: " << uuid.toHex();
     q->beginInsertRows(QModelIndex(), mRows.count(), mRows.count());
     mRows.append(uuid);
     q->endInsertRows();
@@ -72,7 +72,7 @@ void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid, const QStr
         colNumber++;
     }
 
-    sDebug() << "Data changed on UUID " << uuid << " row number " << rowNumber << ":" << colNumber;
+    sDebug() << "Data changed on UUID " << uuid.toHex() << " row number " << rowNumber << ":" << colNumber;
     emit dataChanged(q->index(rowNumber, colNumber, QModelIndex()),
                      q->index(rowNumber, colNumber, QModelIndex()));
 }
