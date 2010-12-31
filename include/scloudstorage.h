@@ -49,6 +49,7 @@ class SCloudStorage : public QObject
     Q_OBJECT
 public:
     static SCloudStorage *instance(const QString &cloudName);
+    static QString cloudPath(const QString &cloudName);
 
     const QString &cloudName() const;
     bool hasItem(const QByteArray &uuid) const;

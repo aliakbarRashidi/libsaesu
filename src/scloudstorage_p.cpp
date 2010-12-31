@@ -16,7 +16,6 @@
  */
 
 // Qt
-#include <QtGui/QDesktopServices>
 #include <QtCore/QCoreApplication>
 
 // Us
@@ -25,32 +24,11 @@
 #include "scloudstorage_p.h"
 #include "sipcchannel.h"
 
-static QString s_cloudPath(const QString &cloudName)
-{
-    QCoreApplication *a = QCoreApplication::instance();
-
-    QString orgName = a->organizationName();
-    QString appName = a->applicationName();
-
-    a->setOrganizationName(QLatin1String("saesu"));
-    a->setApplicationName(QLatin1String("clouds"));
-
-    QString cloudPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-
-    a->setOrganizationName(orgName);
-    a->setApplicationName(appName);
-
-//    QDir d;
-//    d.mkpath(cloudPath);
-
-    return cloudPath + QLatin1Char('/') + cloudName;
-}
-
 SCloudStorage::Private::Private(SCloudStorage *parent, const QString &cloudName)
     : QObject(parent)
     , q(parent)
     , mCloudName(cloudName)
-    , mDatabase(s_cloudPath(cloudName))
+    , mDatabase(SCloudStorage::cloudPath(cloudName))
     , mLocalIpcChannel(new SIpcChannel("cloud://" + cloudName, this))
     , mProcessingIpc(false)
 {

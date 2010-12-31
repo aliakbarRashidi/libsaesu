@@ -22,6 +22,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
+#include <QtGui/QDesktopServices>
+#include <QtCore/QDir>
 
 // Us
 #include "scloudstorage.h"
@@ -74,6 +76,32 @@ SCloudStorage *SCloudStorage::instance(const QString &cloudName)
     hash.insert(cloudName, ptr);
     ptr->setParent(QCoreApplication::instance());
     return ptr;
+}
+
+/*!
+ * Returns the filesystem path to where a given cloud named \a cloudName is stored.
+ * If \a cloudName is an empty string, then the returned path will be to where all clouds are stored.
+ */
+QString SCloudStorage::cloudPath(const QString &cloudName)
+{
+    QString retVal;
+    QCoreApplication *a = QCoreApplication::instance();
+
+    QString orgName = a->organizationName();
+    QString appName = a->applicationName();
+
+    a->setOrganizationName(QLatin1String("saesu"));
+    a->setApplicationName(QLatin1String("clouds"));
+
+    retVal = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+    a->setOrganizationName(orgName);
+    a->setApplicationName(appName);
+
+    if (!cloudName.isEmpty())
+        retVal + QDir::separator() + cloudName;
+
+    return retVal;
 }
 
 /*!
