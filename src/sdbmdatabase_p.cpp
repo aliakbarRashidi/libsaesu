@@ -46,15 +46,19 @@ void SDBMDatabase::Private::readIndex()
     QFileInfo indexInfo(pathTo("db.idx"));
     QDateTime idxLastModified = indexInfo.lastModified();
 
-    mIndex.clear();
-
     if (indexInfo.exists() && idxLastModified != mIndexLastModified) {
+        mIndex.clear();
+
         // reparse index
         QFile indexFile(pathTo("db.idx"));
         indexFile.open(QFile::ReadOnly);
         QDataStream stream(&indexFile);
 
         stream >> mIndex;
+
+        foreach (const QByteArray &idx, mIndex.keys()) {
+            sDebug() << idx.toHex();
+        }
 
         mIndexLastModified = idxLastModified;
     }
@@ -98,7 +102,7 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
     readIndex();
 
     // TODO: locking
-    int valueBlockSize = qCeil(value.length() / BlockSize);
+    int valueBlockSize = qCeil(value.length() / BlockSize) + 1;
 
     if (hasItem(key)) {
         // try fit the item in the existing space?
@@ -106,16 +110,18 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
         int pos = ps.first;
         int size = ps.second;
 
-        int oldBlockSize = qCeil(size / BlockSize);
+        int oldBlockSize = qCeil(size / BlockSize) + 1;
 
         if (valueBlockSize <= oldBlockSize) {
             // write new value
             QFile dataFile(pathTo("db.dat"));
-            dataFile.open(QFile::WriteOnly);
+            dataFile.open(QFile::ReadWrite);
             dataFile.seek(pos);
             dataFile.write(value);
             dataFile.close();
             ps.second = value.size();
+
+            sDebug() << "Wrote " << value.size() << " bytes to " << pos << " for " << key.toHex();
 
             // update index
             mIndex.insert(key, ps);
@@ -125,14 +131,18 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
 
         // TODO: if it doesn't fit, we should mark the block as free,
         // so we can try fit other items there in the future.
+        sDebug() << "Couldn't fit an update for key " << key.toHex();
     }
 
     // if we reach this case, either the key isn't in the store yet,
     // or it couldn't fit in the current allocated blocks, so let's chuck it
     // in the end to avoid re-writing the entire store.
     QFile dataFile(pathTo("db.dat"));
-    dataFile.open(QFile::WriteOnly);
+    dataFile.open(QFile::ReadWrite);
+    sDebug() << "In an append, file is " << dataFile.size() << " bytes";
     dataFile.seek(dataFile.size());
+
+    sDebug() << "Appending at " << dataFile.size() << value.length() << " bytes";
 
     // before anything, note down the values for the index.
     QPair<int, int> ps;
@@ -146,15 +156,23 @@ void SDBMDatabase::Private::set(const QByteArray &key, const QByteArray &value)
     QByteArray nulls((valueBlockSize * BlockSize) - value.length(), 0);
     dataFile.write(nulls);
 
+    sDebug() << "Padded with " << nulls.length() << " nulls";
+
     // update the index
     mIndex.insert(key, ps);
+    sDebug() << "Appended item " << key.toHex();
     writeIndex();
 }
 
-QByteArray SDBMDatabase::Private::get(const QByteArray &key)
+QByteArray SDBMDatabase::Private::get(const QByteArray &key, bool *ok)
 {
-    if (!hasItem(key))
+    if (!hasItem(key)) {
+        *ok = false;
+        sDebug() << "No such item: " << key.toHex();
         return QByteArray();
+    }
+
+    *ok = true;
 
     // TODO: LRU caching here could save us a lot of disk IO
 
@@ -167,5 +185,6 @@ QByteArray SDBMDatabase::Private::get(const QByteArray &key)
     dataFile.seek(pos);
     QByteArray data = dataFile.read(size); // TODO: allocate a QBA of size bytes and read into that, checking for error
     dataFile.close();
+    sDebug() << "Read item " << key.toHex() << data.length() << " bytes";
     return data;
 }

@@ -41,7 +41,7 @@ public:
     bool hasItem(const QByteArray &key);
     void remove(const QByteArray &key);
     void set(const QByteArray &key, const QByteArray &value);
-    QByteArray get(const QByteArray &key);
+    QByteArray get(const QByteArray &key, bool *ok);
 
     QString mDatabaseDirPath;
     QDateTime mIndexLastModified;

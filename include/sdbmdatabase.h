@@ -18,7 +18,11 @@
 #ifndef SDBMDATABASE_H
 #define SDBMDATABASE_H
 
+// Qt
 #include <QByteArray>
+
+// Us
+#include "sglobal.h"
 
 class SDBMDatabase
 {
@@ -28,7 +32,8 @@ public:
     bool hasItem(const QByteArray &key);
     void remove(const QByteArray &key);
     void set(const QByteArray &key, const QByteArray &value);
-    QByteArray get(const QByteArray &key);
+    QByteArray get(const QByteArray &key, bool *ok);
+    QList<QByteArray> keys() const;
 
 private:
     class Private;

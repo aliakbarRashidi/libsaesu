@@ -52,7 +52,22 @@ void SDBMDatabase::set(const QByteArray &key, const QByteArray &value)
 /*!
  * Retrieves the data associated by the given \a key.
  */
-QByteArray SDBMDatabase::get(const QByteArray &key)
+QByteArray SDBMDatabase::get(const QByteArray &key, bool *ok)
 {
-    return d->get(key);
+    return d->get(key, ok);
+}
+
+QList<QByteArray> SDBMDatabase::keys() const
+{
+    QList<QByteArray> keyList;
+
+    d->readIndex();
+
+    // TODO: calculate this on index read
+    for (QHash<QByteArray, QPair<int, int> >::ConstIterator it = d->mIndex.begin();
+         it != d->mIndex.constEnd(); ++it) {
+        keyList.append(it.key());
+    }
+
+    return keyList;
 }
