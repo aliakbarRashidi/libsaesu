@@ -109,8 +109,16 @@ public:
 
                 tries++;
 
+                // in heavy usage conditions, we can actually take a while to acquire the lock
+                // so as to not panic unnecessarily, let's sleep a little here
+                // TODO: this is very very bad, we shouldn't sleep the main thread
+                // this will require architecting to fix, though: move all access
+                // (and locking) to a thread, communicate changes to db state via signals
+                usleep(1);
+
                 if (tries == 50) {
                     sDebug() << "Tried 50 times to lock! What's going on?";
+                    usleep(50);
                 } else if (tries == 500) {
                     qCritical("Can't acquire a lock, life is hard");
                 }
