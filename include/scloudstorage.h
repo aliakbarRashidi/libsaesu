@@ -50,6 +50,7 @@ class SCloudStorage : public QObject
 public:
     static SCloudStorage *instance(const QString &cloudName);
 
+    const QString &cloudName() const;
     bool hasItem(const QByteArray &uuid) const;
     QVariant get(const QByteArray &uuid, const QString &field) const;
     void set(const QByteArray &uuid, const QString &field, const QVariant &data);

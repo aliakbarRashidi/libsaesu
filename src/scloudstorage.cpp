@@ -77,6 +77,14 @@ SCloudStorage *SCloudStorage::instance(const QString &cloudName)
 }
 
 /*!
+ * Returns the name of this cloud
+ */
+const QString &SCloudStorage::cloudName() const
+{
+    return d->mCloudName;
+}
+
+/*!
  * Checks whether or not the cloud contains the item with the given \a uuid
  *
  * Returns true if the cloud contains this uuid.
