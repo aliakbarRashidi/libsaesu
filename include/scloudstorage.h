@@ -51,19 +51,15 @@ public:
     static SCloudStorage *instance(const QString &cloudName);
 
     bool hasItem(const QByteArray &uuid) const;
-    SCloudItem *item(const QByteArray &uuid) const;
-    void insertItem(const QByteArray &uuid, SCloudItem *item);
-
     QVariant get(const QByteArray &uuid, const QString &field) const;
     void set(const QByteArray &uuid, const QString &field, const QVariant &data);
     QByteArray create();
     void destroy(const QByteArray &uuid);
 
     // for sync stuff
-    const QByteArray &hash(const QByteArray &uuid);
-    quint64 modifiedAt(const QByteArray &uuid);
-
     QList<QByteArray> itemUUIDs() const;
+    SCloudItem *item(const QByteArray &uuid) const;
+    void insertItem(const QByteArray &uuid, SCloudItem *item);
 
 signals:
     void changed(const QByteArray &uuid, const QString &fieldName);

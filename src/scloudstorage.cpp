@@ -170,34 +170,14 @@ void SCloudStorage::destroy(const QByteArray &uuid)
     d->removeItem(uuid);
 }
 
+/*!
+ * \internal
+ *
+ * Retrieves a list of all item UUIDs
+ */
 QList<QByteArray> SCloudStorage::itemUUIDs() const
 {
     return d->mDatabase.keys();
-}
-
-/*!
- * Retrieves the hash of data associated with a given \a uuid.
- */
-const QByteArray &SCloudStorage::hash(const QByteArray &uuid)
-{
-    if (S_VERIFY(hasItem(uuid), "couldn't find item"))
-        return QByteArray(); // this should probably be fatal..
-
-    d->fetchItem(uuid);
-    return d->mCurrentItem.mHash;
-}
-
-/*!
- * Retrieves the modification time (in milliseconds since the epoch)
- * of the data of a given \a uuid.
- */
-quint64 SCloudStorage::modifiedAt(const QByteArray &uuid)
-{
-    if (S_VERIFY(hasItem(uuid), "couldn't find item"))
-        return 0; // this should probably be fatal..
-
-    d->fetchItem(uuid);
-    return d->mCurrentItem.mTimeStamp;
 }
 
 /*!
