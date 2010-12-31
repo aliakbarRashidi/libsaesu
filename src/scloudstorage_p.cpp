@@ -16,30 +16,52 @@
  */
 
 // Qt
-#include <QtCore/QUuid>
+#include <QtGui/QDesktopServices>
+#include <QtCore/QCoreApplication>
 
 // Us
+#include "sdbmdatabase.h"
 #include "scloudstorage.h"
 #include "scloudstorage_p.h"
 #include "sipcchannel.h"
+
+static QString s_cloudPath(const QString &cloudName)
+{
+    QCoreApplication *a = QCoreApplication::instance();
+
+    QString orgName = a->organizationName();
+    QString appName = a->applicationName();
+
+    a->setOrganizationName(QLatin1String("saesu"));
+    a->setApplicationName(QLatin1String("clouds"));
+
+    QString cloudPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+    a->setOrganizationName(orgName);
+    a->setApplicationName(appName);
+
+//    QDir d;
+//    d.mkpath(cloudPath);
+
+    return cloudPath + QLatin1Char('/') + cloudName;
+}
 
 SCloudStorage::Private::Private(SCloudStorage *parent, const QString &cloudName)
     : QObject(parent)
     , q(parent)
     , mCloudName(cloudName)
+    , mDatabase(s_cloudPath(cloudName))
     , mLocalIpcChannel(new SIpcChannel("cloud://" + cloudName, this))
     , mProcessingIpc(false)
 {
     connect(mLocalIpcChannel, SIGNAL(received(QString,QByteArray)), this, SLOT(onLocalIpcMessage(QString,QByteArray)));
-    connect(q, SIGNAL(created(QUuid)), this, SLOT(doSendLocalCreated(QUuid)));
-    connect(q, SIGNAL(destroyed(QUuid)), this, SLOT(doSendLocalDestroyed(QUuid)));
-    connect(q, SIGNAL(changed(QUuid, QString)), this, SLOT(doSendLocalChanged(QUuid, QString)));
+    connect(q, SIGNAL(created(QByteArray)), this, SLOT(doSendLocalCreated(QByteArray)));
+    connect(q, SIGNAL(destroyed(QByteArray)), this, SLOT(doSendLocalDestroyed(QByteArray)));
+    connect(q, SIGNAL(changed(QByteArray, QString)), this, SLOT(doSendLocalChanged(QByteArray, QString)));
 }
 
 SCloudStorage::Private::~Private()
 {
-    qDeleteAll(mItemsHash);
-    mItemsHash.clear();
 }
 
 void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QByteArray &data)
@@ -47,17 +69,16 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
     mProcessingIpc = true;
 
     QDataStream stream(data);
-    QUuid uuid;
+    QByteArray uuid;
     stream >> uuid;
 
-    if (message == "created(QUuid)") {
+    if (message == "created(QByteArray)") {
         sDebug() << "Informed about creation of " << uuid;
-        SCloudItem *item = new SCloudItem;
-        item->mUuid = uuid;
-        insertItem(item);
-    } else if (message == "destroyed(QUuid") {
+        SCloudItem item;
+        saveItem(uuid, &item);
+    } else if (message == "destroyed(QByteArray") {
         sDebug() << "Informed about destruction of " << uuid;
-    } else if (message == "changed(QUuid)") {
+    } else if (message == "changed(QByteArray)") {
         QString fieldName;
         QVariant value;
 
@@ -71,7 +92,7 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
     mProcessingIpc = false;
 }
 
-void SCloudStorage::Private::doSendLocalCreated(const QUuid &uuid)
+void SCloudStorage::Private::doSendLocalCreated(const QByteArray &uuid)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -82,11 +103,11 @@ void SCloudStorage::Private::doSendLocalCreated(const QUuid &uuid)
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << uuid;
 
-    sDebug() << "Notifying about creation of " << uuid;
-    mLocalIpcChannel->sendMessage("created(QUuid)", data);
+    sDebug() << "Notifying about creation of " << uuid.toHex();
+    mLocalIpcChannel->sendMessage("created(QByteArray)", data);
 }
 
-void SCloudStorage::Private::doSendLocalDestroyed(const QUuid &uuid)
+void SCloudStorage::Private::doSendLocalDestroyed(const QByteArray &uuid)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -97,11 +118,11 @@ void SCloudStorage::Private::doSendLocalDestroyed(const QUuid &uuid)
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << uuid;
 
-    sDebug() << "Notifying about destruction of " << uuid;
-    mLocalIpcChannel->sendMessage("destroyed(QUuid)", data);
+    sDebug() << "Notifying about destruction of " << uuid.toHex();
+    mLocalIpcChannel->sendMessage("destroyed(QByteArray)", data);
 }
 
-void SCloudStorage::Private::doSendLocalChanged(const QUuid &uuid, const QString &fieldName)
+void SCloudStorage::Private::doSendLocalChanged(const QByteArray &uuid, const QString &fieldName)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -110,33 +131,56 @@ void SCloudStorage::Private::doSendLocalChanged(const QUuid &uuid, const QString
     // let others know about the change
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
-    SCloudItem *item = (*mItemsHash.find(uuid));
+    fetchItem(uuid);
     stream << uuid;
     stream << fieldName;
-    stream << item->mFields[fieldName];
+    stream << mCurrentItem.mFields[fieldName];
 
-    sDebug() << "Notifying about change of " << fieldName << " on " << uuid;
-    mLocalIpcChannel->sendMessage("changed(QUuid)", data);
+    sDebug() << "Notifying about change of " << fieldName << " on " << uuid.toHex();
+    mLocalIpcChannel->sendMessage("changed(QByteArray)", data);
 }
 
-void SCloudStorage::Private::insertItem(SCloudItem *item)
+void SCloudStorage::Private::saveItem(const QByteArray &uuid, SCloudItem *item)
 {
-    mItemsHash.insert(item->mUuid, item);
-    emit created(item->mUuid);
-    sDebug() << "Inserted " << item->mUuid;
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+
+    stream << *item;
+
+    bool itemCreated = false;
+    if (!mDatabase.hasItem(uuid))
+        itemCreated = true;
+
+    mDatabase.set(uuid, data);
+
+    if (itemCreated) {
+        emit created(uuid);
+        sDebug() << "Inserted " << uuid.toHex();
+    }
 }
 
-void SCloudStorage::Private::removeItem(SCloudItem *item)
+void SCloudStorage::Private::removeItem(const QByteArray &uuid)
 {
-    mItemsHash.remove(item->mUuid);
-    emit destroyed(item->mUuid);
-    sDebug() << "Removed " << item->mUuid;
+    mDatabase.remove(uuid);
+    emit destroyed(uuid);
+    sDebug() << "Removed " << uuid.toHex();
+}
+
+bool SCloudStorage::Private::fetchItem(const QByteArray &uuid)
+{
+    bool ok = false;
+    QByteArray data = mDatabase.get(uuid, &ok);
+    if (!ok)
+        return false;
+
+    QDataStream stream(data);
+
+    stream >> mCurrentItem;
+    return true;
 }
 
 QDataStream &operator<<(QDataStream &out, const SCloudItem &item)
 {
-    sDebug() << "Persisting item " << item.mUuid << item.mFields;
-    out << item.mUuid;
     out << item.mTimeStamp;
     out << item.mHash;
     out << item.mFields;
@@ -145,18 +189,15 @@ QDataStream &operator<<(QDataStream &out, const SCloudItem &item)
 
 QDataStream &operator>>(QDataStream &in, SCloudItem &item)
 {
-    in >> item.mUuid;
     in >> item.mTimeStamp;
     in >> item.mHash;
     in >> item.mFields;
 
-    sDebug() << "Loaded " << item.mUuid << item.mFields;
-    //return in >> item.mUuid >> item.mFields;
     return in;
 }
 
 QDebug operator<<(QDebug dbg, const SCloudItem &item)
 {
-    dbg.nospace() << item.mUuid << "(" << item.mFields << ")";
+    dbg.nospace() << "(" << item.mFields << ")";
     return dbg.space();
 }

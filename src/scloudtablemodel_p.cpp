@@ -24,11 +24,11 @@ SCloudTableModel::Private::Private(SCloudTableModel *parent, SCloudStorage *clou
     , q(parent)
     , mCloud(cloud)
 {
-    foreach (const QUuid &uuid, mCloud->itemUUIDs())
-        mRows.append(uuid);
+    mRows = mCloud->itemUUIDs();
+    sDebug() << mRows;
 }
 
-void SCloudTableModel::Private::onItemCreated(const QUuid &uuid)
+void SCloudTableModel::Private::onItemCreated(const QByteArray &uuid)
 {
     sDebug() << "Item inserted: " << uuid;
     q->beginInsertRows(QModelIndex(), mRows.count(), mRows.count());
@@ -36,11 +36,11 @@ void SCloudTableModel::Private::onItemCreated(const QUuid &uuid)
     q->endInsertRows();
 }
 
-void SCloudTableModel::Private::onItemDestroyed(const QUuid &uuid)
+void SCloudTableModel::Private::onItemDestroyed(const QByteArray &uuid)
 {
     int rowNumber = 0;
 
-    foreach (const QUuid &rowuuid, mRows) {
+    foreach (const QByteArray &rowuuid, mRows) {
         if (rowuuid == uuid)
             break;
 
@@ -52,13 +52,13 @@ void SCloudTableModel::Private::onItemDestroyed(const QUuid &uuid)
     q->endRemoveRows();
 }
 
-void SCloudTableModel::Private::onItemChanged(const QUuid &uuid, const QString &fieldName)
+void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid, const QString &fieldName)
 {
     // find the coords
     int rowNumber = 0;
     int colNumber = 0;
 
-    foreach (const QUuid &rowuuid, mRows) {
+    foreach (const QByteArray &rowuuid, mRows) {
         if (rowuuid == uuid)
             break;
 

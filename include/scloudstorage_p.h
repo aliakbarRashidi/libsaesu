@@ -27,6 +27,7 @@
 
 // Us
 #include "scloudstorage.h"
+#include "sdbmdatabase.h"
 class SIpcChannel;
 
 class SCloudStorage::Private : public QObject
@@ -38,22 +39,25 @@ public:
 
     SCloudStorage *q;
     QString mCloudName;
-    QHash<QString, SCloudItem *> mItemsHash;
+    SDBMDatabase mDatabase;
     SIpcChannel *mLocalIpcChannel;
     bool mProcessingIpc;
 
-    void insertItem(SCloudItem *item);
-    void removeItem(SCloudItem *item);
+    SCloudItem mCurrentItem;
+
+    bool fetchItem(const QByteArray &uuid);
+    void saveItem(const QByteArray &key, SCloudItem *item);
+    void removeItem(const QByteArray &uuid);
 
 signals:
-    void created(const QUuid &uuid);
-    void destroyed(const QUuid &uuid);
+    void created(const QByteArray &uuid);
+    void destroyed(const QByteArray &uuid);
 
 private slots:
     void onLocalIpcMessage(const QString &message, const QByteArray &data);
-    void doSendLocalCreated(const QUuid &uuid);
-    void doSendLocalDestroyed(const QUuid &uuid);
-    void doSendLocalChanged(const QUuid &uuid, const QString &fieldName);
+    void doSendLocalCreated(const QByteArray &uuid);
+    void doSendLocalDestroyed(const QByteArray &uuid);
+    void doSendLocalChanged(const QByteArray &uuid, const QString &fieldName);
 };
 
 #endif // SCLOUDSTORAGE_P_H

@@ -33,7 +33,6 @@
 struct SCloudItem
 {
     // TODO: make hash look up a SCloudItem type, SCloudItem should contain field timestamps + hashes
-    QUuid mUuid;
     quint64 mTimeStamp;
     QByteArray mHash;
     QHash<QString, QVariant> mFields;
@@ -51,28 +50,25 @@ class SCloudStorage : public QObject
 public:
     static SCloudStorage *instance(const QString &cloudName);
 
-    void load();
-    void save();
+    bool hasItem(const QByteArray &uuid) const;
+    SCloudItem *item(const QByteArray &uuid) const;
+    void insertItem(const QByteArray &uuid, SCloudItem *item);
 
-    bool hasItem(const QUuid &uuid) const;
-    SCloudItem *item(const QUuid &uuid) const;
-    void insertItem(SCloudItem *item);
-
-    QVariant get(const QUuid &uuid, const QString &field) const;
-    void set(const QUuid &uuid, const QString &field, const QVariant &data);
-    const QUuid &create();
-    void destroy(const QUuid &uuid);
+    QVariant get(const QByteArray &uuid, const QString &field) const;
+    void set(const QByteArray &uuid, const QString &field, const QVariant &data);
+    QByteArray create();
+    void destroy(const QByteArray &uuid);
 
     // for sync stuff
-    const QByteArray &hash(const QUuid &uuid);
-    quint64 modifiedAt(const QUuid &uuid);
+    const QByteArray &hash(const QByteArray &uuid);
+    quint64 modifiedAt(const QByteArray &uuid);
 
-    QList<QUuid> itemUUIDs() const;
+    QList<QByteArray> itemUUIDs() const;
 
 signals:
-    void changed(const QUuid &uuid, const QString &fieldName);
-    void created(const QUuid &uuid);
-    void destroyed(const QUuid &uuid);
+    void changed(const QByteArray &uuid, const QString &fieldName);
+    void created(const QByteArray &uuid);
+    void destroyed(const QByteArray &uuid);
 
 private:
     SCloudStorage(const QString &cloudName, QObject *parent = 0);
