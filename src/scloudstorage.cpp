@@ -99,7 +99,7 @@ QString SCloudStorage::cloudPath(const QString &cloudName)
     a->setApplicationName(appName);
 
     if (!cloudName.isEmpty())
-        retVal + QDir::separator() + cloudName;
+        retVal += QDir::separator() + cloudName;
 
     return retVal;
 }
