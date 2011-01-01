@@ -30,7 +30,7 @@ SCloudTableModel::SCloudTableModel(SCloudStorage *cloud, QObject *parent)
 {
     connect(cloud, SIGNAL(created(QByteArray)), d, SLOT(onItemCreated(QByteArray)));
     connect(cloud, SIGNAL(destroyed(QByteArray)), d, SLOT(onItemDestroyed(QByteArray)));
-    connect(cloud, SIGNAL(changed(QByteArray, QString)), d, SLOT(onItemChanged(QByteArray, QString)));
+    connect(cloud, SIGNAL(changed(QByteArray)), d, SLOT(onItemChanged(QByteArray)));
     connect(d, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 }
 

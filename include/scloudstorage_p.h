@@ -50,7 +50,7 @@ public:
     void removeItem(const QByteArray &uuid);
 
 signals:
-    void changed(const QByteArray &uuid, const QString &fieldName);
+    void changed(const QByteArray &uuid);
     void created(const QByteArray &uuid);
     void destroyed(const QByteArray &uuid);
 
@@ -58,7 +58,7 @@ private slots:
     void onLocalIpcMessage(const QString &message, const QByteArray &data);
     void doSendLocalCreated(const QByteArray &uuid);
     void doSendLocalDestroyed(const QByteArray &uuid);
-    void doSendLocalChanged(const QByteArray &uuid, const QString &fieldName);
+    void doSendLocalChanged(const QByteArray &uuid);
 };
 
 #endif // SCLOUDSTORAGE_P_H

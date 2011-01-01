@@ -35,7 +35,7 @@ SCloudStorage::Private::Private(SCloudStorage *parent, const QString &cloudName)
     connect(mLocalIpcChannel, SIGNAL(received(QString,QByteArray)), this, SLOT(onLocalIpcMessage(QString,QByteArray)));
     connect(q, SIGNAL(created(QByteArray)), this, SLOT(doSendLocalCreated(QByteArray)));
     connect(q, SIGNAL(destroyed(QByteArray)), this, SLOT(doSendLocalDestroyed(QByteArray)));
-    connect(q, SIGNAL(changed(QByteArray, QString)), this, SLOT(doSendLocalChanged(QByteArray, QString)));
+    connect(q, SIGNAL(changed(QByteArray)), this, SLOT(doSendLocalChanged(QByteArray)));
 }
 
 SCloudStorage::Private::~Private()
@@ -57,11 +57,8 @@ void SCloudStorage::Private::onLocalIpcMessage(const QString &message, const QBy
         sDebug() << "Informed about destruction of " << uuid.toHex();
         emit destroyed(uuid);
     } else if (message == "changed(QByteArray)") {
-        QString fieldName;
-
-        stream >> fieldName;
-        emit changed(uuid, fieldName);
-        sDebug() << "Read change for " << uuid.toHex() << " to field " << fieldName;
+        emit changed(uuid);
+        sDebug() << "Informed about change of " << uuid.toHex();
     }
 
     mProcessingIpc = false;
@@ -97,7 +94,7 @@ void SCloudStorage::Private::doSendLocalDestroyed(const QByteArray &uuid)
     mLocalIpcChannel->sendMessage("destroyed(QByteArray)", data);
 }
 
-void SCloudStorage::Private::doSendLocalChanged(const QByteArray &uuid, const QString &fieldName)
+void SCloudStorage::Private::doSendLocalChanged(const QByteArray &uuid)
 {
     // prevent endless loop nightmares
     if (mProcessingIpc)
@@ -108,10 +105,8 @@ void SCloudStorage::Private::doSendLocalChanged(const QByteArray &uuid, const QS
     QDataStream stream(&data, QIODevice::WriteOnly);
     fetchItem(uuid);
     stream << uuid;
-    stream << fieldName;
-    stream << mCurrentItem.mFields[fieldName];
 
-    sDebug() << "Notifying about change of " << fieldName << " on " << uuid.toHex();
+    sDebug() << "Notifying about change on " << uuid.toHex();
     mLocalIpcChannel->sendMessage("changed(QByteArray)", data);
 }
 
@@ -131,6 +126,8 @@ void SCloudStorage::Private::saveItem(const QByteArray &uuid, SCloudItem *item)
     if (itemCreated) {
         emit created(uuid);
         sDebug() << "Inserted " << uuid.toHex();
+    } else {
+        emit changed(uuid);
     }
 }
 

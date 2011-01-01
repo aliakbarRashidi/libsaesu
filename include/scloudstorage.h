@@ -64,7 +64,7 @@ public:
     void insertItem(const QByteArray &uuid, SCloudItem *item);
 
 signals:
-    void changed(const QByteArray &uuid, const QString &fieldName);
+    void changed(const QByteArray &uuid);
     void created(const QByteArray &uuid);
     void destroyed(const QByteArray &uuid);
 

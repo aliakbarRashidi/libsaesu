@@ -52,7 +52,7 @@ SCloudStorage::SCloudStorage(const QString &cloudName, QObject *parent)
 {
     connect(d, SIGNAL(created(QByteArray)), SIGNAL(created(QByteArray)));
     connect(d, SIGNAL(destroyed(QByteArray)), SIGNAL(destroyed(QByteArray)));
-    connect(d, SIGNAL(changed(QByteArray,QString)), SIGNAL(changed(QByteArray,QString)));
+    connect(d, SIGNAL(changed(QByteArray)), SIGNAL(changed(QByteArray)));
 }
 
 SCloudStorage::~SCloudStorage()
@@ -159,8 +159,6 @@ void SCloudStorage::set(const QByteArray &uuid, const QString &field, const QVar
     sDebug() << "Changed " << uuid << " field: " << field << " to " << data;
 
     d->saveItem(uuid, &d->mCurrentItem);
-
-    emit changed(uuid, field);
 }
 
 /*!

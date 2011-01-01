@@ -52,11 +52,10 @@ void SCloudTableModel::Private::onItemDestroyed(const QByteArray &uuid)
     q->endRemoveRows();
 }
 
-void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid, const QString &fieldName)
+void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid)
 {
     // find the coords
     int rowNumber = 0;
-    int colNumber = 0;
 
     foreach (const QByteArray &rowuuid, mRows) {
         if (rowuuid == uuid)
@@ -65,14 +64,7 @@ void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid, const QStr
         rowNumber++;
     }
 
-    foreach (const QString &colName, mColumnNames) {
-        if (colName == fieldName)
-            break;
-
-        colNumber++;
-    }
-
-    sDebug() << "Data changed on UUID " << uuid.toHex() << " row number " << rowNumber << ":" << colNumber;
-    emit dataChanged(q->index(rowNumber, colNumber, QModelIndex()),
-                     q->index(rowNumber, colNumber, QModelIndex()));
+    sDebug() << "Data changed on UUID " << uuid.toHex() << " row number " << rowNumber;
+    emit dataChanged(q->index(rowNumber, 0, QModelIndex()),
+                     q->index(rowNumber, mColumnNames.count(), QModelIndex()));
 }

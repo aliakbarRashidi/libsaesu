@@ -39,7 +39,7 @@ public:
 public slots:
     void onItemCreated(const QByteArray &uuid);
     void onItemDestroyed(const QByteArray &uuid);
-    void onItemChanged(const QByteArray &uuid, const QString &fieldName);
+    void onItemChanged(const QByteArray &uuid);
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
