@@ -133,7 +133,7 @@ void SIpcConnection::setChannelName(const QString &channelName)
     bytes[3] = length >> 24;
 
     write(bytes);
-    sDebug() << "Sent channel change request to " << channelName << ": " << bytes.toHex();
+    sDebug() << "Sent channel change request to " << channelName;
 }
 
 const QString &SIpcConnection::channelName() const
@@ -166,7 +166,7 @@ void SIpcConnection::sendMessage(const QString &message, const QByteArray &data)
 
     write(bytes);
     flush();
-    sDebug() << "Sent message to " << mChannelName;
+    sDebug() << "Sent message to " << mChannelName << ": " << message;
 }
 
 bool SIpcConnection::isServer() const
