@@ -1,5 +1,5 @@
 TEMPLATE = app
-INCLUDEPATH= ../../include/
+INCLUDEPATH= ../../src
 
 LIBS += -L../.. -lsaesu
 

@@ -3,15 +3,14 @@ CONFIG += create_pc create_prl
 
 TEMPLATE = lib
 TARGET = saesu
-DEPENDPATH += . include src
-INCLUDEPATH += . include
+DEPENDPATH += . src
 
 MOC_DIR = ./.moc/
 OBJECTS_DIR = ./.obj/
 
 # Input
-HEADERS += include/sglobal.h \
-           include/sipcchannel.h \
+HEADERS += src/sglobal.h \
+           src/sipcchannel.h \
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
@@ -22,9 +21,9 @@ SOURCES += src/sipcchannel.cpp \
            src/sipcconnection.cpp \
 
 # private headers
-HEADERS += include/sipcchannel_p.h \
-           include/sipcserver_p.h \
-           include/sipcconnection_p.h \
+HEADERS += src/sipcchannel_p.h \
+           src/sipcserver_p.h \
+           src/sipcconnection_p.h \
 
 target.path = /usr/lib
 
@@ -32,7 +31,8 @@ QMAKE_PKGCONFIG_NAME = saesu
 QMAKE_PKGCONFIG_DESCRIPTION = Generic library of useful magic.
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
 QMAKE_PKGCONFIG_INCDIR = $$headers.path
-#QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 pkgconfig.files = $${TARGET}.pc
+pkgconfig.path = /usr/lib/pkgconfig
 
 INSTALLS += target headers
