@@ -201,6 +201,7 @@ void SCloudStorage::destroy(const QByteArray &uuid)
     if (S_VERIFY(hasItem(uuid), "couldn't find item"))
         return;
 
+    sDebug() << "Removing " << uuid.toHex();
     d->removeItem(uuid);
 }
 

@@ -25,7 +25,6 @@ SCloudTableModel::Private::Private(SCloudTableModel *parent, SCloudStorage *clou
     , mCloud(cloud)
 {
     mRows = mCloud->itemUUIDs();
-    sDebug() << mRows;
 }
 
 void SCloudTableModel::Private::onItemCreated(const QByteArray &uuid)
@@ -38,6 +37,7 @@ void SCloudTableModel::Private::onItemCreated(const QByteArray &uuid)
 
 void SCloudTableModel::Private::onItemDestroyed(const QByteArray &uuid)
 {
+    sDebug() << "Removing " << uuid.toHex();
     int rowNumber = 0;
 
     foreach (const QByteArray &rowuuid, mRows) {
@@ -47,9 +47,14 @@ void SCloudTableModel::Private::onItemDestroyed(const QByteArray &uuid)
         rowNumber++;
     }
 
+    sDebug() << "Removing 1 " << uuid.toHex();
+    sDebug() << "Removing row " << rowNumber;
     q->beginRemoveRows(QModelIndex(), rowNumber, rowNumber);
+    sDebug() << "Removing 2 " << uuid.toHex();
     mRows.removeAt(rowNumber);
+    sDebug() << "Removing 3 " << uuid.toHex();
     q->endRemoveRows();
+    sDebug() << "Removing 4 " << uuid.toHex();
 }
 
 void SCloudTableModel::Private::onItemChanged(const QByteArray &uuid)

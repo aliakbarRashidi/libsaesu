@@ -133,8 +133,8 @@ void SCloudStorage::Private::saveItem(const QByteArray &uuid, SCloudItem *item)
 
 void SCloudStorage::Private::removeItem(const QByteArray &uuid)
 {
-    mDatabase.remove(uuid);
     emit destroyed(uuid);
+    mDatabase.remove(uuid);
     sDebug() << "Removed " << uuid.toHex();
 }
 

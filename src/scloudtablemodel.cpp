@@ -145,3 +145,40 @@ QVariant SCloudTableModel::headerData(int section, Qt::Orientation orientation, 
 
     return d->mColumnNames.at(section);
 }
+
+bool SCloudTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    // table, not a tree
+    if (parent != QModelIndex())
+        return false;
+
+    if (row < 0 || row >= d->mRows.count())
+        return false;
+
+    // cap number of rows to try remove
+    if (row + count >= d->mRows.size())
+        count = d->mRows.size() - row;
+
+    // beginRemoveRows / endRemoveRows is covered in the item destruction signal
+    // remove 'row' count times
+    sDebug() << "Destroying " << row << count << " times";
+    while (count > 0) {
+        // data copy here *IS REQUIRED*.
+        // otherwise, we pass a reference to mRows[row] around all the way until we get to
+        // the destroy callback, which removes the row from mRows, which will cause a lot of pain.
+        QByteArray key = d->mRows[row];
+        sDebug() << "Destroying " << d->mRows[row].toHex();
+        d->mCloud->destroy(key);
+        count--;
+    }
+
+    return true;
+}
+
+/*!
+ * Creates a row in the cloud, for population with data.
+ */
+bool SCloudTableModel::createRow()
+{
+    d->mCloud->create();
+}
