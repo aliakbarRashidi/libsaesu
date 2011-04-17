@@ -15,23 +15,32 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECT_SOBJECT_P_H
-#define SOBJECT_SOBJECT_P_H
+#ifndef SABSTRACTOBJECTREQUEST_H
+#define SABSTRACTOBJECTREQUEST_H
 
-// Qt
-#include <QSharedData>
-#include <QHash>
-#include <QString>
-#include <QUuid>
+#include <QObject>
 
-// Us
-#include "sobject.h"
+#include "sglobal.h"
+class SObjectSaveRequest;
+class SObjectFetchRequest;
 
-class SObject::Private: public QSharedData
+class SAbstractObjectRequest : public QObject
 {
+    Q_OBJECT
 public:
-    QHash<QString, QVariant> mValues;
-    QUuid mUuid;
+    explicit SAbstractObjectRequest(QObject *parent = 0);
+
+    /*! Performs the request.
+     */
+    void run();
+
+protected:
+    friend class SObjectManager;
+//    friend class SObjectSaveRequest;
+//    friend class SObjectFetchRequest;
+
+    class Private;
+    Private *d;
 };
 
-#endif // SOBJECT_SOBJECT_P_H
+#endif // SABSTRACTOBJECTREQUEST_H

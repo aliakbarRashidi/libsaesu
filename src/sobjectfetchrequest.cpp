@@ -15,23 +15,22 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECT_SOBJECT_P_H
-#define SOBJECT_SOBJECT_P_H
-
 // Qt
-#include <QSharedData>
-#include <QHash>
-#include <QString>
-#include <QUuid>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QStringList>
 
-// Us
-#include "sobject.h"
+#include "sobjectfetchrequest.h"
+#include "sobjectfetchrequest_p.h"
 
-class SObject::Private: public QSharedData
+SObjectFetchRequest::SObjectFetchRequest(QObject *parent)
+    : SAbstractObjectRequest(parent)
 {
-public:
-    QHash<QString, QVariant> mValues;
-    QUuid mUuid;
-};
+    d = new Private;
+    sDebug() << "Constructed, got priv " << d;
+}
 
-#endif // SOBJECT_SOBJECT_P_H
+QList<SObject> SObjectFetchRequest::objects() const
+{
+    return static_cast<Private*>(d)->mObjects;
+}

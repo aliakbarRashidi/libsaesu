@@ -41,6 +41,16 @@ SObject::~SObject()
 {
 }
 
+QUuid SObject::uuid() const
+{
+    return d->mUuid;
+}
+
+void SObject::setUuid(const QUuid &uuid)
+{
+    d->mUuid = uuid;
+}
+
 QVariant SObject::value(const QString &fieldName) const
 {
     return d->mValues[fieldName];
@@ -48,5 +58,22 @@ QVariant SObject::value(const QString &fieldName) const
 
 void SObject::setValue(const QString &fieldName, const QVariant &value)
 {
-    d->mUnsavedValues[fieldName] = value;
+    d->mValues[fieldName] = value;
 }
+
+QDataStream &operator<<(QDataStream &out, const SObject &item)
+{
+    // TODO: versioning
+    out << item.uuid();
+    out << item.d->mValues;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, SObject &item)
+{
+    in >> item.d->mUuid;
+    in >> item.d->mValues;
+
+    return in;
+}
+

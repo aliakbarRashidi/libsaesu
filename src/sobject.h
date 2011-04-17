@@ -20,7 +20,8 @@
 
 // Qt
 #include <QVariant>
-#include <QExplicitlySharedDataPointer>
+#include <QUuid>
+#include <QSharedDataPointer>
 
 /*! SObject represents a row in a data store.
  */
@@ -32,6 +33,9 @@ public:
     SObject &operator=(const SObject &);
     ~SObject();
 
+    QUuid uuid() const;
+    void setUuid(const QUuid &uuid);
+
     /*! Retrieves data for a given \a fieldName.
      */
     QVariant value(const QString &fieldName) const;
@@ -41,8 +45,14 @@ public:
     void setValue(const QString &fieldName, const QVariant &value);
 
 private:
+    friend QDataStream &operator<<(QDataStream &out, const SObject &item);
+    friend QDataStream &operator>>(QDataStream &in, SObject &item);
+
     class Private;
-    QExplicitlySharedDataPointer<Private> d;
+    QSharedDataPointer<Private> d;
 };
+
+QDataStream &operator<<(QDataStream &out, const SObject &item);
+QDataStream &operator>>(QDataStream &in, SObject &item);
 
 #endif // SOBJECT_H

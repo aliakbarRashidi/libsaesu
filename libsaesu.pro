@@ -1,4 +1,4 @@
-QT += network
+QT += network sql
 CONFIG += create_pc create_prl
 
 TEMPLATE = lib
@@ -11,7 +11,11 @@ OBJECTS_DIR = ./.obj/
 # Input
 HEADERS += src/sglobal.h \
            src/sipcchannel.h \
-           src/sobject.h
+           src/sobject.h \
+           src/sabstractobjectrequest.h \
+           src/sobjectfetchrequest.h \
+           src/sobjectsaverequest.h \
+           src/sobjectmanager.h
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
@@ -21,12 +25,22 @@ SOURCES += src/sipcchannel.cpp \
            src/sipcserver.cpp \
            src/sipcconnection.cpp \
            src/sobject.cpp \
-           src/sobject_p.cpp
+           src/sobject_p.cpp \
+           src/sabstractobjectrequest.cpp \
+           src/sabstractobjectrequest_p.cpp \
+           src/sobjectfetchrequest.cpp \
+           src/sobjectfetchrequest_p.cpp \
+           src/sobjectsaverequest.cpp \
+           src/sobjectsaverequest_p.cpp \
+           src/sobjectmanager.cpp
 
 # private headers
 HEADERS += src/sipcchannel_p.h \
            src/sipcserver_p.h \
-           src/sipcconnection_p.h
+           src/sipcconnection_p.h \
+           src/sabstractobjectrequest_p.h \
+           src/sobjectsaverequest_p.h \
+           src/sobjectfetchrequest_p.h
 
 target.path = /usr/lib
 

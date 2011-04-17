@@ -17,4 +17,4 @@
 
 #include "sobject.h"
 #include "sobject_p.h"
-#include <QExplicitlySharedDataPointer>
+#include <QSharedDataPointer>

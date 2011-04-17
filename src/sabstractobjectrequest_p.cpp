@@ -15,23 +15,11 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECT_SOBJECT_P_H
-#define SOBJECT_SOBJECT_P_H
+#include "sabstractobjectrequest.h"
+#include "sabstractobjectrequest_p.h"
 
-// Qt
-#include <QSharedData>
-#include <QHash>
-#include <QString>
-#include <QUuid>
-
-// Us
-#include "sobject.h"
-
-class SObject::Private: public QSharedData
+SAbstractObjectRequest::Private::Private(QObject *parent)
+    : QObject(parent)
 {
-public:
-    QHash<QString, QVariant> mValues;
-    QUuid mUuid;
-};
+}
 
-#endif // SOBJECT_SOBJECT_P_H

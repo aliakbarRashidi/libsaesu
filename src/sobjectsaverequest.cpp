@@ -15,23 +15,29 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECT_SOBJECT_P_H
-#define SOBJECT_SOBJECT_P_H
-
 // Qt
-#include <QSharedData>
-#include <QHash>
-#include <QString>
-#include <QUuid>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QStringList>
 
 // Us
+#include "sobjectsaverequest.h"
+#include "sobjectsaverequest_p.h"
 #include "sobject.h"
 
-class SObject::Private: public QSharedData
+SObjectSaveRequest::SObjectSaveRequest(QObject *parent)
+    : SAbstractObjectRequest(parent)
 {
-public:
-    QHash<QString, QVariant> mValues;
-    QUuid mUuid;
-};
+    d = new Private;
+}
 
-#endif // SOBJECT_SOBJECT_P_H
+SObjectSaveRequest::~SObjectSaveRequest()
+{
+    delete d;
+}
+
+void SObjectSaveRequest::setObjects(const QList<SObject> &objects)
+{
+    static_cast<Private*>(d)->mObjects = objects;
+}
+
