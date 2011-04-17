@@ -36,6 +36,7 @@ public:
     void run();
 
     QList<SObject> mObjects;
+    SAbstractObjectFilter mFilter;
 };
 
 #endif // SOBJECTFETCHREQUEST_P_H

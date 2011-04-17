@@ -27,10 +27,20 @@ SObjectFetchRequest::SObjectFetchRequest(QObject *parent)
     : SAbstractObjectRequest(parent)
 {
     d = new Private;
-    sDebug() << "Constructed, got priv " << d;
 }
 
 QList<SObject> SObjectFetchRequest::objects() const
 {
     return static_cast<Private*>(d)->mObjects;
 }
+
+void SObjectFetchRequest::setFilter(const SAbstractObjectFilter &filter)
+{
+    static_cast<Private*>(d)->mFilter = filter;
+}
+
+SAbstractObjectFilter SObjectFetchRequest::filter() const
+{
+    return static_cast<Private*>(d)->mFilter;
+}
+

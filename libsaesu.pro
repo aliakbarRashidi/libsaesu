@@ -15,7 +15,10 @@ HEADERS += src/sglobal.h \
            src/sabstractobjectrequest.h \
            src/sobjectfetchrequest.h \
            src/sobjectsaverequest.h \
-           src/sobjectmanager.h
+           src/sobjectmanager.h \
+           src/sabstractobjectfilter.h \
+           src/sobjectidfilter.h \
+           src/sobjectdetailfilter.h
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
@@ -32,7 +35,13 @@ SOURCES += src/sipcchannel.cpp \
            src/sobjectfetchrequest_p.cpp \
            src/sobjectsaverequest.cpp \
            src/sobjectsaverequest_p.cpp \
-           src/sobjectmanager.cpp
+           src/sobjectmanager.cpp \
+           src/sabstractobjectfilter.cpp \
+           src/sabstractobjectfilter_p.cpp \
+           src/sobjectidfilter.cpp \
+           src/sobjectidfilter_p.cpp \
+           src/sobjectdetailfilter.cpp \
+           src/sobjectdetailfilter_p.cpp
 
 # private headers
 HEADERS += src/sipcchannel_p.h \
@@ -40,7 +49,10 @@ HEADERS += src/sipcchannel_p.h \
            src/sipcconnection_p.h \
            src/sabstractobjectrequest_p.h \
            src/sobjectsaverequest_p.h \
-           src/sobjectfetchrequest_p.h
+           src/sobjectfetchrequest_p.h \
+           src/sabstractobjectfilter_p.h \
+           src/sobjectidfilter_p.h \
+           src/sobjectdetailfilter_p.h
 
 target.path = /usr/lib
 

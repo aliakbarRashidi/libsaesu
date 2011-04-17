@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <viroteck@viroteck.net>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,31 +15,30 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECTFETCHREQUEST_H
-#define SOBJECTFETCHREQUEST_H
+#ifndef SOBJECTIDFILTER_H
+#define SOBJECTIDFILTER_H
 
 // Qt
 #include <QObject>
+#include <QString>
+#include <QUuid>
 
-// Us
-#include "sglobal.h"
-#include "sobject.h"
-#include "sabstractobjectrequest.h"
 #include "sabstractobjectfilter.h"
 
-class SObjectFetchRequest : public SAbstractObjectRequest
+class SObjectIdFilter : public SAbstractObjectFilter
 {
-    Q_OBJECT
 public:
-    explicit SObjectFetchRequest(QObject *parent = 0);
+    explicit SObjectIdFilter();
+    virtual ~SObjectIdFilter();
 
-    QList<SObject> objects() const;
-
-    void setFilter(const SAbstractObjectFilter &filter);
-    SAbstractObjectFilter filter() const;
+    void setIds(const QList<QUuid> &ids);
+    QList<QUuid> ids() const;
+    void add(const QUuid &id);
+    void remove(const QUuid &id);
+    void clear();
 
 private:
     class Private;
 };
 
-#endif // SOBJECTFETCHREQUEST_H
+#endif // SOBJECTIDFILTER_H

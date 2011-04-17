@@ -26,7 +26,6 @@
 SObjectFetchRequest::Private::Private(QObject *parent)
     : SAbstractObjectRequest::Private(parent)
 {
-    sDebug() << "Constructed";
 }
 
 void SObjectFetchRequest::Private::run()
@@ -56,12 +55,20 @@ void SObjectFetchRequest::Private::run()
         QDataStream ds(&b, QIODevice::ReadOnly);
         SObject obj;
         ds >> obj;
-        mObjects << obj;
 
-        sDebug() << "Read " << obj.uuid();
+        // TODO: optimise for the case of no filter
+        // TODO: we should probably pass a list of objects and have the filter
+        // remove the ones it doesn't match instead of checking each
+        // object seperately
+        //
+        // TODO: optimise id filters to select the rows matching instead of all objs
+        if (mFilter.matches(&obj))
+            mObjects << obj;
+
+//        sDebug() << "Read " << obj.uuid();
     }
 
-    sDebug() << "Done";
+//    sDebug() << "Done";
     deleteLater();
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <viroteck@viroteck.net>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,31 +15,22 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECTFETCHREQUEST_H
-#define SOBJECTFETCHREQUEST_H
-
-// Qt
-#include <QObject>
-
-// Us
-#include "sglobal.h"
 #include "sobject.h"
-#include "sabstractobjectrequest.h"
-#include "sabstractobjectfilter.h"
+#include "sobjectdetailfilter.h"
+#include "sobjectdetailfilter_p.h"
 
-class SObjectFetchRequest : public SAbstractObjectRequest
+SObjectDetailFilter::Private::Private()
+     : SAbstractObjectFilter::Private()
 {
-    Q_OBJECT
-public:
-    explicit SObjectFetchRequest(QObject *parent = 0);
+}
 
-    QList<SObject> objects() const;
+SObjectDetailFilter::Private::~Private()
+{
+}
 
-    void setFilter(const SAbstractObjectFilter &filter);
-    SAbstractObjectFilter filter() const;
-
-private:
-    class Private;
-};
-
-#endif // SOBJECTFETCHREQUEST_H
+bool SObjectDetailFilter::Private::matches(SObject *object)
+{
+    if (object->value(mDetailName) == mDetailValue)
+        return true;
+    return false;
+}

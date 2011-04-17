@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <viroteck@viroteck.net>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,31 +15,32 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECTFETCHREQUEST_H
-#define SOBJECTFETCHREQUEST_H
-
-// Qt
-#include <QObject>
-
 // Us
-#include "sglobal.h"
-#include "sobject.h"
-#include "sabstractobjectrequest.h"
 #include "sabstractobjectfilter.h"
+#include "sabstractobjectfilter_p.h"
 
-class SObjectFetchRequest : public SAbstractObjectRequest
+SAbstractObjectFilter::SAbstractObjectFilter()
 {
-    Q_OBJECT
-public:
-    explicit SObjectFetchRequest(QObject *parent = 0);
+}
 
-    QList<SObject> objects() const;
+SAbstractObjectFilter::SAbstractObjectFilter(const SAbstractObjectFilter &rhs) : d(rhs.d)
+{
+}
 
-    void setFilter(const SAbstractObjectFilter &filter);
-    SAbstractObjectFilter filter() const;
+SAbstractObjectFilter &SAbstractObjectFilter::operator=(const SAbstractObjectFilter &rhs)
+{
+    if (this != &rhs)
+        d.operator=(rhs.d);
+    return *this;
+}
 
-private:
-    class Private;
-};
+SAbstractObjectFilter::~SAbstractObjectFilter()
+{
+}
 
-#endif // SOBJECTFETCHREQUEST_H
+bool SAbstractObjectFilter::matches(SObject *object)
+{
+    //sDebug() << this << "Calling matches on " << d.data();
+    return d->matches(object);
+}
+
