@@ -23,8 +23,3 @@ SObjectManager::SObjectManager(QObject *parent)
 {
 }
 
-void SObjectManager::addRequest(SAbstractObjectRequest *request)
-{
-    // TODO: some form of request queue, run on a thread, and cancellable
-    request->run();
-}

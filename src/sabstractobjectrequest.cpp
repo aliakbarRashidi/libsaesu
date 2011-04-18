@@ -23,7 +23,7 @@ SAbstractObjectRequest::SAbstractObjectRequest(QObject *parent)
 {
 }
 
-void SAbstractObjectRequest::run()
+void SAbstractObjectRequest::start(SObjectManager *manager)
 {
     sDebug() << "Calling run on " << (void*)d;
     d->run();

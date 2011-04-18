@@ -30,8 +30,6 @@ class SObjectManager : public QObject
     Q_OBJECT
 public:
     explicit SObjectManager(QObject *parent = 0);
-
-    void addRequest(SAbstractObjectRequest *request);
 };
 
 #endif // SOBJECTMANAGER_H

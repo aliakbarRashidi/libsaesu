@@ -21,8 +21,7 @@
 #include <QObject>
 
 #include "sglobal.h"
-class SObjectSaveRequest;
-class SObjectFetchRequest;
+class SObjectManager;
 
 class SAbstractObjectRequest : public QObject
 {
@@ -32,12 +31,10 @@ public:
 
     /*! Performs the request.
      */
-    void run();
+    void start(SObjectManager *manager);
 
 protected:
     friend class SObjectManager;
-//    friend class SObjectSaveRequest;
-//    friend class SObjectFetchRequest;
 
     class Private;
     Private *d;
