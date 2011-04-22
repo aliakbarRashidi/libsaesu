@@ -30,7 +30,7 @@ public:
 
     /*! Performs the request.
      */
-    virtual void run() = 0;
+    virtual void start(SObjectManager *manager) = 0;
 };
 
 #endif // SABSTRACTOBJECTREQUEST_P_H

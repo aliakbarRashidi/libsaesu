@@ -32,7 +32,7 @@ public:
     explicit Private(QObject *parent);
     virtual ~Private();
 
-    void run();
+    void start(SObjectManager *manager);
 
     QList<QUuid> mObjectIds;
 };

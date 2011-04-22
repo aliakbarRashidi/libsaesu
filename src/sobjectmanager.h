@@ -30,6 +30,15 @@ class SObjectManager : public QObject
     Q_OBJECT
 public:
     explicit SObjectManager(QObject *parent = 0);
+    virtual ~SObjectManager();
+
+private:
+    friend class SObjectSaveRequest;
+    friend class SObjectRemoveRequest;
+    friend class SObjectFetchRequest;
+
+    class Private;
+    Private *d;
 };
 
 #endif // SOBJECTMANAGER_H

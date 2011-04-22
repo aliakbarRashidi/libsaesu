@@ -33,7 +33,7 @@ class SObjectSaveRequest::Private : public SAbstractObjectRequest::Private
 public:
     explicit Private(QObject *parent = 0);
 
-    void run();
+    void start(SObjectManager *manager);
 
     QList<SObject> mObjects;
 };

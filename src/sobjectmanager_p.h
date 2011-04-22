@@ -15,16 +15,26 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sabstractobjectrequest.h"
-#include "sabstractobjectrequest_p.h"
+#ifndef SOBJECTMANAGER_P_H
+#define SOBJECTMANAGER_P_H
 
-SAbstractObjectRequest::SAbstractObjectRequest(QObject *parent)
-    : QObject(parent)
-{
-}
+// Qt
+#include <QObject>
+#include <QString>
+#include <QSqlDatabase>
 
-void SAbstractObjectRequest::start(SObjectManager *manager)
+// Us
+#include "sobjectmanager.h"
+
+class SObjectManager::Private : public QObject
 {
-    sDebug() << "Calling start on " << (void*)d;
-    d->start(manager);
-}
+    Q_OBJECT
+public:
+    explicit Private(QObject *parent = 0);
+    
+    QSqlDatabase connection();
+
+    QSqlDatabase mConnection;
+};
+
+#endif // SOBJECTMANAGER_P_H

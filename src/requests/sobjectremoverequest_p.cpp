@@ -23,6 +23,8 @@
 // Us
 #include "sobjectremoverequest.h"
 #include "sobjectremoverequest_p.h"
+#include "sobjectmanager.h"
+#include "sobjectmanager_p.h"
 
 SObjectRemoveRequest::Private::Private(QObject *parent)
      : SAbstractObjectRequest::Private(parent)
@@ -33,25 +35,9 @@ SObjectRemoveRequest::Private::~Private()
 {
 }
 
-void SObjectRemoveRequest::Private::run()
+void SObjectRemoveRequest::Private::start(SObjectManager *manager)
 {
-    // TODO: needlessly reopening the connection sucks
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "saesu");
-    db.setDatabaseName("saesu");
-    bool ok = db.open();
-    if (!db.open()) {
-        // TODO: error handling
-        sWarning() << "Couldn't open database";
-        deleteLater();
-        return;
-    }
-
-    if (!db.tables().contains("_saesu")) {
-        sWarning() << "Table not found";
-        deleteLater();
-        return;
-    }
-    
+    QSqlDatabase db = manager->d->connection();
     QSqlQuery q(db);
     QString uuidList;
 
