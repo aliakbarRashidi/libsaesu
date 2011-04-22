@@ -34,6 +34,8 @@ public:
     ~SObjectSaveRequest();
 
     void setObjects(const QList<SObject> &objects);
+    void setObject(const SObject &object);
+    QList<SObject> objects() const;
 
 private:
     class Private;

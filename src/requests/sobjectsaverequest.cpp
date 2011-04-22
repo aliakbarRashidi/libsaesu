@@ -41,3 +41,12 @@ void SObjectSaveRequest::setObjects(const QList<SObject> &objects)
     static_cast<Private*>(d)->mObjects = objects;
 }
 
+void SObjectSaveRequest::setObject(const SObject &object)
+{
+    static_cast<Private*>(d)->mObjects = QList<SObject>() << object;
+}
+
+QList<SObject> SObjectSaveRequest::objects() const
+{
+    return static_cast<Private*>(d)->mObjects;
+}
