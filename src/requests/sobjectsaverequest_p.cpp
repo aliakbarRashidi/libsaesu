@@ -64,7 +64,7 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         sDebug() << "Serialised form " << buf.toHex();
         sDebug() << "No hex: " << buf;
     }
-
+    
     if (!objectsAdded.isEmpty())
         emit manager->objectsAdded(objectsAdded);
 

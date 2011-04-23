@@ -19,7 +19,7 @@
 #define SOBJECTID_H
 
 // Qt
-#include <QSharedDataPointer>
+#include <QSharedPointer>
 #include <QUuid>
 
 typedef QUuid SObjectLocalId;
@@ -37,7 +37,7 @@ public:
 
 private:
     class Private;
-    QSharedDataPointer<Private> d;
+    QSharedPointer<Private> d;
 };
 
 #endif // SOBJECTID_H

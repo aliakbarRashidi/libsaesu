@@ -25,7 +25,7 @@
 // Us
 #include "sobjectid.h"
 
-class SObjectId::Private : public QSharedData
+class SObjectId::Private
 {
 public:
     explicit Private();

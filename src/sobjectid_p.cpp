@@ -19,7 +19,6 @@
 #include "sobjectid_p.h"
 
 SObjectId::Private::Private()
-     : QSharedData()
 {
 }
 
