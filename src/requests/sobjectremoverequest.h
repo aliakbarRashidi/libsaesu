@@ -24,6 +24,7 @@
 #include <QUuid>
 
 #include "sabstractobjectrequest.h"
+#include "sobjectid.h"
 
 class SObjectRemoveRequest : public SAbstractObjectRequest
 {
@@ -31,8 +32,9 @@ public:
     explicit SObjectRemoveRequest(QObject *parent = 0);
     virtual ~SObjectRemoveRequest();
 
-    void setObjectId(const QUuid &id);
-    void setObjectIds(const QList<QUuid> &ids);
+    void add(const SObjectLocalId &id);
+    void setObjectId(const SObjectLocalId &id);
+    void setObjectIds(const QList<SObjectLocalId> &ids);
     QList<QUuid> objectIds();
 
 private:

@@ -44,3 +44,8 @@ QList<QUuid> SObjectRemoveRequest::objectIds()
 {
     return static_cast<Private*>(d)->mObjectIds;
 }
+
+void SObjectRemoveRequest::add(const SObjectLocalId &id)
+{
+    static_cast<Private*>(d)->mObjectIds.append(id);
+}
