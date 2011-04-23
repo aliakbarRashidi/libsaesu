@@ -40,7 +40,9 @@ SAbstractObjectFilter::~SAbstractObjectFilter()
 
 bool SAbstractObjectFilter::matches(SObject *object)
 {
-    //sDebug() << this << "Calling matches on " << d.data();
+    if (!d)
+        return true; // no filter: match everything
+
     return d->matches(object);
 }
 
