@@ -39,7 +39,9 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
     QList<SObjectLocalId> objectsAdded;
     QList<SObjectLocalId> objectsUpdated;
 
-    foreach (SObject obj, mObjects) {
+    for (int i = 0; i < mObjects.count(); ++i) {
+        SObject &obj = mObjects[i];
+
         if (obj.id().localId().isNull()) {
             obj.id().setLocalId(QUuid::createUuid());
 
