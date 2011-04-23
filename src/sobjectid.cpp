@@ -17,6 +17,7 @@
 
 // Qt
 #include <QObject>
+#include <QMetaType>
 
 // Us
 #include "sobjectid.h"
@@ -25,6 +26,14 @@
 SObjectId::SObjectId()
      : d(new Private())
 {
+    // XXX: this is a bit of an ugly hack
+    static bool initialisedTypes = false;
+    if (!initialisedTypes) {
+        qRegisterMetaType<SObjectLocalId>("SObjectLocalId");
+        qRegisterMetaType<QList<SObjectLocalId> >("QList<SObjectLocalId>");
+        qRegisterMetaType<SObjectId>("SObjectId");
+        qRegisterMetaType<QList<SObjectId> >("QList<SObjectId>");
+    }
 }
 
 SObjectId::~SObjectId()
