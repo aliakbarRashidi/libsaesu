@@ -15,23 +15,29 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sobject.h"
-#include "sobjectidfilter.h"
-#include "sobjectidfilter_p.h"
+#ifndef SOBJECTID_H
+#define SOBJECTID_H
 
-SObjectIdFilter::Private::Private()
-     : SAbstractObjectFilter::Private()
-{
-}
+// Qt
+#include <QSharedDataPointer>
+#include <QUuid>
 
-SObjectIdFilter::Private::~Private()
-{
-}
+typedef QUuid SObjectLocalId;
 
-bool SObjectIdFilter::Private::matches(SObject *object)
+class SObjectId
 {
-   // sDebug() << object->uuid();
-    if (mFilterIds.contains(object->id().localId()))
-        return true;
-    return false;
-}
+public:
+    SObjectId();
+    SObjectId(const SObjectId &);
+    SObjectId &operator=(const SObjectId &);
+    virtual ~SObjectId();
+
+    void setLocalId(const SObjectLocalId &id);
+    SObjectLocalId localId() const;
+
+private:
+    class Private;
+    QSharedDataPointer<Private> d;
+};
+
+#endif // SOBJECTID_H

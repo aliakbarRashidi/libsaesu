@@ -31,7 +31,7 @@ class SObject::Private: public QSharedData
 {
 public:
     QHash<QString, QVariant> mValues;
-    QUuid mUuid;
+    SObjectId mId;
 };
 
 #endif // SOBJECT_SOBJECT_P_H

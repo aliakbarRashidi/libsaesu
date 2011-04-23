@@ -15,23 +15,23 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sobject.h"
-#include "sobjectidfilter.h"
-#include "sobjectidfilter_p.h"
+#ifndef SOBJECTID_P_H
+#define SOBJECTID_P_H
 
-SObjectIdFilter::Private::Private()
-     : SAbstractObjectFilter::Private()
-{
-}
+// Qt
+#include <QSharedData>
+#include <QUuid>
 
-SObjectIdFilter::Private::~Private()
-{
-}
+// Us
+#include "sobjectid.h"
 
-bool SObjectIdFilter::Private::matches(SObject *object)
+class SObjectId::Private : public QSharedData
 {
-   // sDebug() << object->uuid();
-    if (mFilterIds.contains(object->id().localId()))
-        return true;
-    return false;
-}
+public:
+    explicit Private();
+    virtual ~Private();
+
+    QUuid mUuid;
+};
+
+#endif // SOBJECTID_H

@@ -23,6 +23,7 @@
 #include <QString>
 #include <QUuid>
 
+#include "sobjectid.h"
 #include "sabstractobjectfilter.h"
 
 class SObjectIdFilter : public SAbstractObjectFilter
@@ -31,10 +32,10 @@ public:
     explicit SObjectIdFilter();
     virtual ~SObjectIdFilter();
 
-    void setIds(const QList<QUuid> &ids);
-    QList<QUuid> ids() const;
-    void add(const QUuid &id);
-    void remove(const QUuid &id);
+    void setIds(const QList<SObjectLocalId> &ids);
+    QList<SObjectLocalId> ids() const;
+    void add(const SObjectLocalId &id);
+    void remove(const SObjectLocalId &id);
     void clear();
 
 private:

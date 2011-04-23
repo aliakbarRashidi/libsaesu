@@ -38,17 +38,17 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
     QSqlQuery q(db);
 
     foreach (SObject obj, mObjects) {
-        if (obj.uuid().isNull()) {
-            obj.setUuid(QUuid::createUuid());
+        if (obj.id().localId().isNull()) {
+            obj.id().setLocalId(QUuid::createUuid());
 
             // insert
-            sDebug() << "Inserting " << obj.uuid();
+            sDebug() << "Inserting " << obj.id().localId();
         } else {
-            sDebug() << "Updating " << obj.uuid();
+            sDebug() << "Updating " << obj.id().localId();
         }
 
         q.prepare("INSERT OR REPLACE INTO objects (key, object) VALUES (:key, :data)");
-        q.bindValue(":key", obj.uuid().toString());
+        q.bindValue(":key", obj.id().localId().toString());
         
         QByteArray buf;
         QDataStream ds(&buf, QIODevice::ReadWrite);

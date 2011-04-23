@@ -35,7 +35,7 @@ public:
 
     bool matches(SObject *object);
 
-    QList<QUuid> mFilterIds;
+    QList<SObjectLocalId> mFilterIds;
 };
 
 #endif // SOBJECTIDFILTER_H

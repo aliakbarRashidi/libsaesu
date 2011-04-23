@@ -16,6 +16,7 @@ HEADERS += src/sglobal.h \
            src/sipcchannel.h \
            src/sobject.h \
            src/sobjectmanager.h \
+           src/sobjectid.h
 
 include(src/src.pri)
 
@@ -31,12 +32,15 @@ SOURCES += src/sipcchannel.cpp \
            src/sobject.cpp \
            src/sobject_p.cpp \
            src/sobjectmanager.cpp \
+           src/sobjectid.cpp \
+           src/sobjectid_p.cpp
 
 # private headers
 HEADERS += src/sipcchannel_p.h \
            src/sipcserver_p.h \
            src/sipcconnection_p.h \
-           src/sobjectmanager_p.h
+           src/sobjectmanager_p.h \
+           src/sobjectid_p.h
 
 target.path = /usr/lib
 

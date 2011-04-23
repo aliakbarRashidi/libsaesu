@@ -32,22 +32,22 @@ SObjectIdFilter::~SObjectIdFilter()
 {
 }
 
-void SObjectIdFilter::setIds(const QList<QUuid> &ids)
+void SObjectIdFilter::setIds(const QList<SObjectLocalId> &ids)
 {
     static_cast<Private*>(d.data())->mFilterIds = ids;
 }
 
-QList<QUuid> SObjectIdFilter::ids() const
+QList<SObjectLocalId> SObjectIdFilter::ids() const
 {
     return static_cast<Private*>(const_cast<SAbstractObjectFilter::Private*>(d.data()))->mFilterIds;
 }
 
-void SObjectIdFilter::add(const QUuid &id)
+void SObjectIdFilter::add(const SObjectLocalId &id)
 {
     static_cast<Private*>(d.data())->mFilterIds.append(id);
 }
 
-void SObjectIdFilter::remove(const QUuid &id)
+void SObjectIdFilter::remove(const SObjectLocalId &id)
 {
     static_cast<Private*>(d.data())->mFilterIds.removeAll(id);
 }

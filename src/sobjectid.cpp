@@ -15,23 +15,40 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sobject.h"
-#include "sobjectidfilter.h"
-#include "sobjectidfilter_p.h"
+// Qt
+#include <QObject>
 
-SObjectIdFilter::Private::Private()
-     : SAbstractObjectFilter::Private()
+// Us
+#include "sobjectid.h"
+#include "sobjectid_p.h"
+
+SObjectId::SObjectId()
+     : d(new Private())
 {
 }
 
-SObjectIdFilter::Private::~Private()
+SObjectId::~SObjectId()
 {
 }
 
-bool SObjectIdFilter::Private::matches(SObject *object)
+SObjectId::SObjectId(const SObjectId &rhs) : d(rhs.d)
 {
-   // sDebug() << object->uuid();
-    if (mFilterIds.contains(object->id().localId()))
-        return true;
-    return false;
 }
+
+SObjectId &SObjectId::operator=(const SObjectId &rhs)
+{
+    if (this != &rhs)
+        d.operator=(rhs.d);
+    return *this;
+}
+
+SObjectLocalId SObjectId::localId() const
+{
+    return d->mUuid;
+}
+
+void SObjectId::setLocalId(const SObjectLocalId &id)
+{
+    d->mUuid = id;
+}
+

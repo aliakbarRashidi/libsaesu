@@ -23,6 +23,8 @@
 #include <QUuid>
 #include <QSharedDataPointer>
 
+#include "sobjectid.h"
+
 /*! SObject represents a row in a data store.
  */
 class SObject
@@ -33,8 +35,8 @@ public:
     SObject &operator=(const SObject &);
     ~SObject();
 
-    QUuid uuid() const;
-    void setUuid(const QUuid &uuid);
+    SObjectId id() const;
+    void setId(const SObjectId &id);
 
     /*! Retrieves data for a given \a fieldName.
      */

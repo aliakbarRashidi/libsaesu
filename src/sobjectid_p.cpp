@@ -15,23 +15,14 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sobject.h"
-#include "sobjectidfilter.h"
-#include "sobjectidfilter_p.h"
+#include "sobjectid.h"
+#include "sobjectid_p.h"
 
-SObjectIdFilter::Private::Private()
-     : SAbstractObjectFilter::Private()
+SObjectId::Private::Private()
+     : QSharedData()
 {
 }
 
-SObjectIdFilter::Private::~Private()
+SObjectId::Private::~Private()
 {
-}
-
-bool SObjectIdFilter::Private::matches(SObject *object)
-{
-   // sDebug() << object->uuid();
-    if (mFilterIds.contains(object->id().localId()))
-        return true;
-    return false;
 }

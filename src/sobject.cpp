@@ -41,14 +41,14 @@ SObject::~SObject()
 {
 }
 
-QUuid SObject::uuid() const
+SObjectId SObject::id() const
 {
-    return d->mUuid;
+    return d->mId;
 }
 
-void SObject::setUuid(const QUuid &uuid)
+void SObject::setId(const SObjectId &id)
 {
-    d->mUuid = uuid;
+    d->mId = id;
 }
 
 QVariant SObject::value(const QString &fieldName) const
@@ -64,14 +64,16 @@ void SObject::setValue(const QString &fieldName, const QVariant &value)
 QDataStream &operator<<(QDataStream &out, const SObject &item)
 {
     // TODO: versioning
-    out << item.uuid();
+    out << item.id().localId();
     out << item.d->mValues;
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, SObject &item)
 {
-    in >> item.d->mUuid;
+    QUuid id;
+    in >> id;
+    item.d->mId.setLocalId(id);
     in >> item.d->mValues;
 
     return in;
