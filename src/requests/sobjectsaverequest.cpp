@@ -49,3 +49,8 @@ QList<SObject> SObjectSaveRequest::objects() const
 {
     return static_cast<Private*>(d)->mObjects;
 }
+
+void SObjectSaveRequest::add(const SObject &object)
+{
+    static_cast<Private*>(d)->mObjects.append(object);
+}
