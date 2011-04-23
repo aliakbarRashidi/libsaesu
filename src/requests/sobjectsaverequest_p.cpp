@@ -36,6 +36,8 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
 {
     QSqlDatabase db = manager->d->connection();
     QSqlQuery query(db);
+    QList<SObjectLocalId> objectsAdded;
+    QList<SObjectLocalId> objectsUpdated;
 
     foreach (SObject obj, mObjects) {
         if (obj.id().localId().isNull()) {
@@ -43,8 +45,10 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
 
             // insert
             sDebug() << "Inserting " << obj.id().localId();
+            objectsAdded.append(obj.id().localId());
         } else {
             sDebug() << "Updating " << obj.id().localId();
+            objectsUpdated.append(obj.id().localId());
         }
 
         query.prepare("INSERT OR REPLACE INTO objects (key, object) VALUES (:key, :data)");
@@ -60,6 +64,12 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         sDebug() << "Serialised form " << buf.toHex();
         sDebug() << "No hex: " << buf;
     }
+
+    if (!objectsAdded.isEmpty())
+        emit manager->objectsAdded(objectsAdded);
+
+    if (!objectsUpdated.isEmpty())
+        emit manager->objectsUpdated(objectsUpdated);
 
     db.commit();
 

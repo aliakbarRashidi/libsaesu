@@ -57,5 +57,6 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     query.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
     db.commit();
 
+    emit manager->objectsRemoved(mObjectIds);
     emit q->finished();
 }

@@ -24,6 +24,7 @@
 
 // Us
 class SAbstractObjectRequest;
+#include "sobjectid.h"
 
 class SObjectManager : public QObject
 {
@@ -31,6 +32,11 @@ class SObjectManager : public QObject
 public:
     explicit SObjectManager(QObject *parent = 0);
     virtual ~SObjectManager();
+
+signals:
+    void objectsAdded(const QList<SObjectLocalId> &objectIds);
+    void objectsUpdated(const QList<SObjectLocalId> &objectIds);
+    void objectsRemoved(const QList<SObjectLocalId> &objectIds);
 
 private:
     friend class SObjectSaveRequest;
