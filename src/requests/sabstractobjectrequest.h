@@ -33,8 +33,15 @@ public:
      */
     void start(SObjectManager *manager);
 
+signals:
+    void started();
+    void finished();
+
 protected:
     friend class SObjectManager;
+    friend class SObjectSaveRequest;
+    friend class SObjectFetchRequest;
+    friend class SObjectRemoveRequest;
 
     class Private;
     Private *d;

@@ -29,7 +29,7 @@
 class SObjectRemoveRequest::Private : public SAbstractObjectRequest::Private
 {
 public:
-    explicit Private(QObject *parent);
+    explicit Private(SAbstractObjectRequest *parent);
     virtual ~Private();
 
     void start(SObjectManager *manager);

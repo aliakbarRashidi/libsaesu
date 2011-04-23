@@ -31,7 +31,7 @@ class SObjectFetchRequest::Private : public SAbstractObjectRequest::Private
 {
     Q_OBJECT
 public:
-    explicit Private(QObject *parent = 0);
+    explicit Private(SAbstractObjectRequest *parent = 0);
 
     void start(SObjectManager *manager);
 

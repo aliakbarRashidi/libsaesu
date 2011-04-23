@@ -26,7 +26,11 @@
 SObjectFetchRequest::SObjectFetchRequest(QObject *parent)
     : SAbstractObjectRequest(parent)
 {
-    d = new Private;
+    d = new Private(this);
+}
+
+SObjectFetchRequest::~SObjectFetchRequest()
+{
 }
 
 QList<SObject> SObjectFetchRequest::objects() const

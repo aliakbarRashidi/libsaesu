@@ -26,11 +26,13 @@ class SAbstractObjectRequest::Private : public QObject
 {
     Q_OBJECT
 public:
-    explicit Private(QObject *parent = 0);
+    explicit Private(SAbstractObjectRequest *parent = 0);
 
     /*! Performs the request.
      */
     virtual void start(SObjectManager *manager) = 0;
+
+    SAbstractObjectRequest *q;
 };
 
 #endif // SABSTRACTOBJECTREQUEST_P_H

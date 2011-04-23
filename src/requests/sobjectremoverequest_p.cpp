@@ -26,7 +26,7 @@
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
 
-SObjectRemoveRequest::Private::Private(QObject *parent)
+SObjectRemoveRequest::Private::Private(SAbstractObjectRequest *parent)
      : SAbstractObjectRequest::Private(parent)
 {
 }
@@ -38,7 +38,7 @@ SObjectRemoveRequest::Private::~Private()
 void SObjectRemoveRequest::Private::start(SObjectManager *manager)
 {
     QSqlDatabase db = manager->d->connection();
-    QSqlQuery q(db);
+    QSqlQuery query(db);
     QString uuidList;
 
     for (int i = 0; i != mObjectIds.count(); ++i) {
@@ -54,9 +54,8 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     // TODO: switch to integer keys and figure out a way to make this suck less
     db.transaction();
     sDebug() << "Executing DELETE FROM objects WHERE key IN (" + uuidList + ")";
-    q.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
+    query.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
     db.commit();
 
-
-    deleteLater();
+    emit q->finished();
 }

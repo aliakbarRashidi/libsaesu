@@ -32,6 +32,7 @@ class SObjectFetchRequest : public SAbstractObjectRequest
     Q_OBJECT
 public:
     explicit SObjectFetchRequest(QObject *parent = 0);
+    virtual ~SObjectFetchRequest();
 
     QList<SObject> objects() const;
 

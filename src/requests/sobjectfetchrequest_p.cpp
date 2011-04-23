@@ -25,7 +25,7 @@
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
 
-SObjectFetchRequest::Private::Private(QObject *parent)
+SObjectFetchRequest::Private::Private(SAbstractObjectRequest *parent)
     : SAbstractObjectRequest::Private(parent)
 {
 }
@@ -33,11 +33,11 @@ SObjectFetchRequest::Private::Private(QObject *parent)
 void SObjectFetchRequest::Private::start(SObjectManager *manager)
 {
     QSqlDatabase db = manager->d->connection();
-    QSqlQuery q(db);
-    q.exec("SELECT object FROM objects");
+    QSqlQuery query(db);
+    query.exec("SELECT object FROM objects");
     
-    while (q.next()) {
-        QByteArray b(q.value(0).toByteArray());
+    while (query.next()) {
+        QByteArray b(query.value(0).toByteArray());
         QDataStream ds(&b, QIODevice::ReadOnly);
         SObject obj;
         ds >> obj;
@@ -54,7 +54,6 @@ void SObjectFetchRequest::Private::start(SObjectManager *manager)
 //        sDebug() << "Read " << obj.uuid();
     }
 
-//    sDebug() << "Done";
-    deleteLater();
+    emit q->finished();
 }
 

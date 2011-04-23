@@ -18,8 +18,9 @@
 #include "sabstractobjectrequest.h"
 #include "sabstractobjectrequest_p.h"
 
-SAbstractObjectRequest::Private::Private(QObject *parent)
+SAbstractObjectRequest::Private::Private(SAbstractObjectRequest *parent)
     : QObject(parent)
+    , q(parent)
 {
 }
 

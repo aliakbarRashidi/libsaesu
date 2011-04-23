@@ -27,7 +27,7 @@
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
 
-SObjectSaveRequest::Private::Private(QObject *parent)
+SObjectSaveRequest::Private::Private(SAbstractObjectRequest *parent)
     : SAbstractObjectRequest::Private(parent)
 {
 }
@@ -35,7 +35,7 @@ SObjectSaveRequest::Private::Private(QObject *parent)
 void SObjectSaveRequest::Private::start(SObjectManager *manager)
 {
     QSqlDatabase db = manager->d->connection();
-    QSqlQuery q(db);
+    QSqlQuery query(db);
 
     foreach (SObject obj, mObjects) {
         if (obj.id().localId().isNull()) {
@@ -47,15 +47,15 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
             sDebug() << "Updating " << obj.id().localId();
         }
 
-        q.prepare("INSERT OR REPLACE INTO objects (key, object) VALUES (:key, :data)");
-        q.bindValue(":key", obj.id().localId().toString());
+        query.prepare("INSERT OR REPLACE INTO objects (key, object) VALUES (:key, :data)");
+        query.bindValue(":key", obj.id().localId().toString());
         
         QByteArray buf;
         QDataStream ds(&buf, QIODevice::ReadWrite);
         ds << obj;
         
-        q.bindValue(":data", buf);
-        q.exec();
+        query.bindValue(":data", buf);
+        query.exec();
 
         sDebug() << "Serialised form " << buf.toHex();
         sDebug() << "No hex: " << buf;
@@ -63,7 +63,6 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
 
     db.commit();
 
-    //emit finished(this);
     sDebug() << "Done";
-    deleteLater();
+    emit q->finished();
 }

@@ -26,5 +26,6 @@ SAbstractObjectRequest::SAbstractObjectRequest(QObject *parent)
 void SAbstractObjectRequest::start(SObjectManager *manager)
 {
     sDebug() << "Calling start on " << (void*)d;
+    emit started();
     d->start(manager);
 }

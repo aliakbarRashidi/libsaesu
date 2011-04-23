@@ -28,12 +28,11 @@
 SObjectSaveRequest::SObjectSaveRequest(QObject *parent)
     : SAbstractObjectRequest(parent)
 {
-    d = new Private;
+    d = new Private(this);
 }
 
 SObjectSaveRequest::~SObjectSaveRequest()
 {
-    delete d;
 }
 
 void SObjectSaveRequest::setObjects(const QList<SObject> &objects)
