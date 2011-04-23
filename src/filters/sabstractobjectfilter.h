@@ -38,7 +38,7 @@ public:
     virtual bool matches(SObject *object);
 
 private:
-    friend class SObjectIdFilter;
+    friend class SObjectLocalIdFilter;
     friend class SObjectDetailFilter;
 
     class Private;

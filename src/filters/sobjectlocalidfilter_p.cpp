@@ -15,27 +15,22 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SOBJECTIDFILTER_P_H
-#define SOBJECTIDFILTER_P_H
+#include "sobject.h"
+#include "sobjectlocalidfilter.h"
+#include "sobjectlocalidfilter_p.h"
 
-// Qt
-#include <QObject>
-#include <QString>
-
-// Us
-#include "sobjectidfilter.h"
-#include "sabstractobjectfilter.h"
-#include "sabstractobjectfilter_p.h"
-
-class SObjectIdFilter::Private : public SAbstractObjectFilter::Private
+SObjectLocalIdFilter::Private::Private()
+     : SAbstractObjectFilter::Private()
 {
-public:
-    explicit Private();
-    virtual ~Private();
+}
 
-    bool matches(SObject *object);
+SObjectLocalIdFilter::Private::~Private()
+{
+}
 
-    QList<SObjectLocalId> mFilterIds;
-};
-
-#endif // SOBJECTIDFILTER_H
+bool SObjectLocalIdFilter::Private::matches(SObject *object)
+{
+    if (mFilterIds.contains(object->id().localId()))
+        return true;
+    return false;
+}
