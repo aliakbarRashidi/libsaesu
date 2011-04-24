@@ -25,6 +25,13 @@
 class tst_SObjectRequests : public QObject
 {
     Q_OBJECT
+public:
+    tst_SObjectRequests()
+        : mManager("saesu_test")
+    {
+
+    }
+
 private slots:
     void save();
     void update();

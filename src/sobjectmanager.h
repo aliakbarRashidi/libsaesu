@@ -30,7 +30,7 @@ class SObjectManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SObjectManager(QObject *parent = 0);
+    explicit SObjectManager(const QString &tableName, QObject *parent = 0);
     virtual ~SObjectManager();
 
 signals:

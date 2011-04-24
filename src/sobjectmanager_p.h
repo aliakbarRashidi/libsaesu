@@ -30,11 +30,13 @@ class SObjectManager::Private : public QObject
 {
     Q_OBJECT
 public:
-    explicit Private(QObject *parent = 0);
+    explicit Private(const QString &tableName, QObject *parent = 0);
     
     QSqlDatabase connection();
 
     QSqlDatabase mConnection;
+
+    QString mTableName;
 };
 
 #endif // SOBJECTMANAGER_P_H

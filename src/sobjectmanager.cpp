@@ -25,16 +25,17 @@
 #include "sabstractobjectrequest.h"
 
 // TODO: move to a seperate .cpp
-SObjectManager::Private::Private(QObject *parent)
+SObjectManager::Private::Private(const QString &tableName, QObject *parent)
     : QObject(parent)
+    , mTableName(tableName)
 {
 }
 
 QSqlDatabase SObjectManager::Private::connection()
 {
     if (!mConnection.isValid()) {
-        mConnection = QSqlDatabase::addDatabase("QSQLITE", "saesu");
-        mConnection.setDatabaseName("saesu");
+        mConnection = QSqlDatabase::addDatabase("QSQLITE", "cloud://saesu" + mTableName);
+        mConnection.setDatabaseName(mTableName);
         if (!mConnection.open()) {
             // TODO: error handling
             sWarning() << "Couldn't open database";
@@ -61,9 +62,9 @@ QSqlDatabase SObjectManager::Private::connection()
     return mConnection;
 }
 
-SObjectManager::SObjectManager(QObject *parent)
+SObjectManager::SObjectManager(const QString &tableName, QObject *parent)
     : QObject(parent)
-    , d(new Private(this))
+    , d(new Private(tableName, this))
 {
 }
 
