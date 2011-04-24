@@ -25,6 +25,7 @@
 
 // Us
 #include "sobjectmanager.h"
+#include "sipcchannel.h"
 
 class SObjectManager::Private : public QObject
 {
@@ -37,6 +38,11 @@ public:
     QSqlDatabase mConnection;
 
     QString mTableName;
+
+    SIpcChannel mIpcChannel;
+
+private slots:
+    void onIpcMessage(const QString &message, const QByteArray &data);
 };
 
 #endif // SOBJECTMANAGER_P_H

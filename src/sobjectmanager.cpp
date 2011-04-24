@@ -28,13 +28,15 @@
 SObjectManager::Private::Private(const QString &tableName, QObject *parent)
     : QObject(parent)
     , mTableName(tableName)
+    , mIpcChannel(QLatin1String("saesu-cloud://") + tableName)
 {
+    connect(&mIpcChannel, SIGNAL(received(QString,QByteArray)), this, SLOT(onIpcMessage(QString,QByteArray)));
 }
 
 QSqlDatabase SObjectManager::Private::connection()
 {
     if (!mConnection.isValid()) {
-        mConnection = QSqlDatabase::addDatabase("QSQLITE", "cloud://saesu" + mTableName);
+        mConnection = QSqlDatabase::addDatabase("QSQLITE", QLatin1String("saesu-cloud://") + mTableName);
         mConnection.setDatabaseName(mTableName);
         if (!mConnection.open()) {
             // TODO: error handling
@@ -60,6 +62,22 @@ QSqlDatabase SObjectManager::Private::connection()
     }
 
     return mConnection;
+}
+
+void SObjectManager::Private::onIpcMessage(const QString &message, const QByteArray &data)
+{
+    QDataStream stream(data);
+    QList<SObjectLocalId> objects;
+    stream >> objects;
+    SObjectManager *q = static_cast<SObjectManager*>(parent());
+
+    if (message == "added(QList<SObjectLocalId>)") {
+        emit q->objectsAdded(objects);
+    } else if (message == "removed(QList<SObjectLocalId>)") {
+        emit q->objectsRemoved(objects);
+    } else if (message == "updated(QList<SObjectLocalId>)") {
+        emit q->objectsUpdated(objects);
+    }
 }
 
 SObjectManager::SObjectManager(const QString &tableName, QObject *parent)

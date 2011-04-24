@@ -58,5 +58,11 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     db.commit();
 
     emit manager->objectsRemoved(mObjectIds);
+
+    QByteArray ba;
+    QDataStream ds(&ba, QIODevice::WriteOnly);
+    ds << mObjectIds;
+    manager->d->mIpcChannel.sendMessage(QLatin1String("removed(QList<SObjectLocalId>)"), ba);
+
     emit q->finished();
 }

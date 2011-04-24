@@ -67,11 +67,23 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         sDebug() << "No hex: " << buf;
     }
     
-    if (!objectsAdded.isEmpty())
+    if (!objectsAdded.isEmpty()) {
         emit manager->objectsAdded(objectsAdded);
 
-    if (!objectsUpdated.isEmpty())
+        QByteArray ba;
+        QDataStream ds(&ba, QIODevice::WriteOnly);
+        ds << objectsAdded;
+        manager->d->mIpcChannel.sendMessage(QLatin1String("added(QList<SObjectLocalId>)"), ba);
+    }
+
+    if (!objectsUpdated.isEmpty()) {
         emit manager->objectsUpdated(objectsUpdated);
+
+        QByteArray ba;
+        QDataStream ds(&ba, QIODevice::WriteOnly);
+        ds << objectsUpdated;
+        manager->d->mIpcChannel.sendMessage(QLatin1String("updated(QList<SObjectLocalId>)"), ba);
+    }
 
     db.commit();
 
