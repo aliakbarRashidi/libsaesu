@@ -19,6 +19,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QVariant>
 
 // Us
 #include "sobjectremoverequest.h"
@@ -41,6 +42,9 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     QSqlQuery query(db);
     QString uuidList;
 
+    db.transaction();
+
+    // XXX: TODO: this is bad for memory use/perf and inefficient
     for (int i = 0; i != mObjectIds.count(); ++i) {
         uuidList += QLatin1Char('\'');
         uuidList += mObjectIds.at(i).toString();
@@ -48,11 +52,14 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
         
         if (i < mObjectIds.count() - 1)
             uuidList += QLatin1Char(',');
+
+        query.prepare("INSERT INTO deletelist (key, timestamp) VALUES (:key, :timestamp)");
+        query.bindValue("key", mObjectIds.at(i).toString());
+        query.bindValue("timestamp", QDateTime::currentMSecsSinceEpoch());
+        query.exec();
     }
 
-    // XXX: TODO: this is bad for memory use/perf and inefficient
     // TODO: switch to integer keys and figure out a way to make this suck less
-    db.transaction();
     sDebug() << "Executing DELETE FROM objects WHERE key IN (" + uuidList + ")";
     query.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
     db.commit();
