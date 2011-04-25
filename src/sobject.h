@@ -35,6 +35,9 @@ public:
     SObject &operator=(const SObject &);
     ~SObject();
 
+    QByteArray hash() const;
+    qint64 lastSaved() const;
+
     SObjectId id() const;
     void setId(const SObjectId &id);
 
@@ -49,6 +52,8 @@ public:
 private:
     friend QDataStream &operator<<(QDataStream &out, const SObject &item);
     friend QDataStream &operator>>(QDataStream &in, SObject &item);
+    friend class SObjectSaveRequest;
+    friend class SObjectFetchRequest;
 
     class Private;
     QSharedDataPointer<Private> d;

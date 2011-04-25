@@ -19,11 +19,13 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QCryptographicHash>
 
 // Us
 #include "sobjectsaverequest.h"
 #include "sobjectsaverequest_p.h"
 #include "sobject.h"
+#include "sobject_p.h"
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
 
@@ -53,8 +55,19 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
             objectsUpdated.append(obj.id().localId());
         }
 
-        query.prepare("INSERT OR REPLACE INTO objects (key, object) VALUES (:key, :data)");
+        // calculate data hash
+        QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+        QStringList keys = obj.d->mValues.keys();
+        foreach (const QString &key, keys) {
+            hasher.addData(key.toUtf8());
+            hasher.addData(obj.d->mValues[key].toByteArray());
+        }
+
+        query.prepare("INSERT OR REPLACE INTO objects (key, timestamp, hash, object) VALUES (:key, :timestamp, :hash, :data)");
         query.bindValue(":key", obj.id().localId().toString());
+        query.bindValue(":timestamp", QDateTime::currentMSecsSinceEpoch());
+        query.bindValue(":hash", hasher.result());
         
         QByteArray buf;
         QDataStream ds(&buf, QIODevice::ReadWrite);

@@ -32,6 +32,8 @@ class SObject::Private: public QSharedData
 public:
     QHash<QString, QVariant> mValues;
     SObjectId mId;
+    qint64 mLastSaved;
+    QByteArray mHash;
 };
 
 #endif // SOBJECT_SOBJECT_P_H

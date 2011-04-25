@@ -24,6 +24,8 @@
 #include "sobjectfetchrequest_p.h"
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
+#include "sobject.h"
+#include "sobject_p.h"
 
 SObjectFetchRequest::Private::Private(SAbstractObjectRequest *parent)
     : SAbstractObjectRequest::Private(parent)
@@ -34,13 +36,15 @@ void SObjectFetchRequest::Private::start(SObjectManager *manager)
 {
     QSqlDatabase db = manager->d->connection();
     QSqlQuery query(db);
-    query.exec("SELECT object FROM objects");
+    query.exec("SELECT object, timestamp, hash FROM objects");
     
     while (query.next()) {
         QByteArray b(query.value(0).toByteArray());
         QDataStream ds(&b, QIODevice::ReadOnly);
         SObject obj;
         ds >> obj;
+        obj.d->mLastSaved = query.value(1).toLongLong();
+        obj.d->mHash = query.value(2).toByteArray();
 
         // TODO: optimise for the case of no filter
         // TODO: we should probably pass a list of objects and have the filter

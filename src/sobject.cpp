@@ -41,6 +41,16 @@ SObject::~SObject()
 {
 }
 
+QByteArray SObject::hash() const
+{
+    return d->mHash;
+}
+
+qint64 SObject::lastSaved() const
+{
+    return d->mLastSaved;
+}
+
 SObjectId SObject::id() const
 {
     return d->mId;

@@ -55,7 +55,7 @@ QSqlDatabase SObjectManager::Private::connection()
             q.exec("CREATE TABLE _saesu (version integer)");
             q.exec("INSERT INTO _saesu VALUES (1)");
 
-            q.exec("CREATE TABLE objects (key primary key, object blob)");
+            q.exec("CREATE TABLE objects (key primary key, timestamp integer, hash blob, object blob)");
 
             mConnection.commit();
         }
