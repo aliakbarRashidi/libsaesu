@@ -36,6 +36,8 @@ public:
     void start(SObjectManager *manager);
 
     QList<SObject> mObjects;
+
+    SObjectSaveRequest::SaveHint mSaveHint;
 };
 
 #endif // SOBJECTSAVEREQUEST_P_H

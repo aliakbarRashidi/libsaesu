@@ -65,8 +65,16 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         }
 
         query.prepare("INSERT OR REPLACE INTO objects (key, timestamp, hash, object) VALUES (:key, :timestamp, :hash, :data)");
+
+        if (mSaveHint & SObjectSaveRequest::ObjectFromSync) {
+            // if the object is coming from sync, it presumably already has
+            // a save timestamp, so we should reuse it
+            query.bindValue(":timestamp", obj.lastSaved());
+        } else {
+            query.bindValue(":timestamp", QDateTime::currentMSecsSinceEpoch());
+        }
+
         query.bindValue(":key", obj.id().localId().toString());
-        query.bindValue(":timestamp", QDateTime::currentMSecsSinceEpoch());
         query.bindValue(":hash", hasher.result());
         
         QByteArray buf;

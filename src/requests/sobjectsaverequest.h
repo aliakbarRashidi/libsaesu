@@ -38,6 +38,14 @@ public:
     void add(const SObject &object);
     QList<SObject> objects() const;
 
+    enum SaveHint
+    {
+        ObjectFromSync
+    };
+
+    void setSaveHint(SaveHint saveHint);
+    SaveHint saveHint() const;
+
 private:
     class Private;
 };

@@ -54,3 +54,13 @@ void SObjectSaveRequest::add(const SObject &object)
 {
     static_cast<Private*>(d)->mObjects.append(object);
 }
+
+void SObjectSaveRequest::setSaveHint(SaveHint saveHint)
+{
+    static_cast<Private*>(d)->mSaveHint = saveHint;
+}
+
+SObjectSaveRequest::SaveHint SObjectSaveRequest::saveHint() const
+{
+    return static_cast<Private*>(d)->mSaveHint;
+}
