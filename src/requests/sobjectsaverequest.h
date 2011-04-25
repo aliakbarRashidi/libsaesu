@@ -40,6 +40,7 @@ public:
 
     enum SaveHint
     {
+        SaveHintNone = 0,
         ObjectFromSync
     };
 

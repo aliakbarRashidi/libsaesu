@@ -31,6 +31,7 @@
 
 SObjectSaveRequest::Private::Private(SAbstractObjectRequest *parent)
     : SAbstractObjectRequest::Private(parent)
+    , mSaveHint(SaveHintNone)
 {
 }
 
