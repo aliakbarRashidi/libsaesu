@@ -79,7 +79,7 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         
         QByteArray buf;
         QDataStream ds(&buf, QIODevice::ReadWrite);
-        ds << obj;
+        ds << obj.d->mValues;
         
         query.bindValue(":data", buf);
         query.exec();

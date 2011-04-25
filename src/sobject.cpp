@@ -75,6 +75,7 @@ QDataStream &operator<<(QDataStream &out, const SObject &item)
 {
     // TODO: versioning
     out << item.id().localId();
+    out << item.d->mLastSaved;
     out << item.d->mValues;
     return out;
 }
@@ -84,6 +85,7 @@ QDataStream &operator>>(QDataStream &in, SObject &item)
     QUuid id;
     in >> id;
     item.d->mId.setLocalId(id);
+    in >> item.d->mLastSaved;
     in >> item.d->mValues;
 
     return in;
