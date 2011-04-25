@@ -71,8 +71,10 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
             // if the object is coming from sync, it presumably already has
             // a save timestamp, so we should reuse it
             query.bindValue(":timestamp", obj.lastSaved());
+            sDebug() << "Keeping existing save timestamp of " << obj.lastSaved();
         } else {
             query.bindValue(":timestamp", QDateTime::currentMSecsSinceEpoch());
+            sDebug() << "Setting save timestamp to " << QDateTime::currentMSecsSinceEpoch();
         }
 
         query.bindValue(":key", obj.id().localId().toString());

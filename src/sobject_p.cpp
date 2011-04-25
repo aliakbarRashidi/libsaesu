@@ -18,3 +18,9 @@
 #include "sobject.h"
 #include "sobject_p.h"
 #include <QSharedDataPointer>
+
+SObject::Private::Private()
+    : mLastSaved(0)
+{
+
+}

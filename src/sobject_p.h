@@ -30,6 +30,8 @@
 class SObject::Private: public QSharedData
 {
 public:
+    explicit Private();
+
     QHash<QString, QVariant> mValues;
     SObjectId mId;
     qint64 mLastSaved;
