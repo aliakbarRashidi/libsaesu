@@ -62,9 +62,17 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     // TODO: switch to integer keys and figure out a way to make this suck less
     sDebug() << "Executing DELETE FROM objects WHERE key IN (" + uuidList + ")";
     query.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
+
+    bool atLeastOne = false;
+    if (query.numRowsAffected() > 0) {
+        atLeastOne = true;
+    }
+
     db.commit();
 
-    emit manager->objectsRemoved(mObjectIds);
+    // TODO: we really should not emit ids we didn't actually remove.'
+    if (atLeastOne)
+        emit manager->objectsRemoved(mObjectIds);
 
     QByteArray ba;
     QDataStream ds(&ba, QIODevice::WriteOnly);
