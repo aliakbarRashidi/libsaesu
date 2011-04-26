@@ -42,6 +42,7 @@ private:
     friend class SObjectSaveRequest;
     friend class SObjectRemoveRequest;
     friend class SObjectFetchRequest;
+    friend class SDeleteListFetchRequest;
 
     class Private;
     Private *d;

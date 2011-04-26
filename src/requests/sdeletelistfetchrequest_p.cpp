@@ -15,37 +15,34 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SABSTRACTOBJECTREQUEST_H
-#define SABSTRACTOBJECTREQUEST_H
+// Qt
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QStringList>
 
-#include <QObject>
+#include "sdeletelistfetchrequest.h"
+#include "sdeletelistfetchrequest_p.h"
+#include "sobjectmanager.h"
+#include "sobjectmanager_p.h"
+#include "sobject.h"
+#include "sobject_p.h"
 
-#include "sglobal.h"
-class SObjectManager;
-
-class SAbstractObjectRequest : public QObject
+SDeleteListFetchRequest::Private::Private(SAbstractObjectRequest *parent)
+    : SAbstractObjectRequest::Private(parent)
 {
-    Q_OBJECT
-public:
-    explicit SAbstractObjectRequest(QObject *parent = 0);
+}
 
-    /*! Performs the request.
-     */
-    void start(SObjectManager *manager);
+void SDeleteListFetchRequest::Private::start(SObjectManager *manager)
+{
+    QSqlDatabase db = manager->d->connection();
+    QSqlQuery query(db);
+    query.exec("SELECT key FROM deletelist");
+    
+    while (query.next()) {
+        SObjectLocalId id(query.value(0).toString());
+        mObjectIds << id;
+    }
 
-signals:
-    void started();
-    void finished();
+    emit q->finished();
+}
 
-protected:
-    friend class SObjectManager;
-    friend class SObjectSaveRequest;
-    friend class SObjectFetchRequest;
-    friend class SObjectRemoveRequest;
-    friend class SDeleteListFetchRequest;
-
-    class Private;
-    Private *d;
-};
-
-#endif // SABSTRACTOBJECTREQUEST_H

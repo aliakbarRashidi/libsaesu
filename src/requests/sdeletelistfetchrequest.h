@@ -15,37 +15,29 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SABSTRACTOBJECTREQUEST_H
-#define SABSTRACTOBJECTREQUEST_H
+#ifndef SDELETELISTFETCHREQUEST_H
+#define SDELETELISTFETCHREQUEST_H
 
+// Qt
 #include <QObject>
 
+// Us
 #include "sglobal.h"
-class SObjectManager;
+#include "sobject.h"
+#include "sabstractobjectrequest.h"
+#include "sabstractobjectfilter.h"
 
-class SAbstractObjectRequest : public QObject
+class SDeleteListFetchRequest : public SAbstractObjectRequest
 {
     Q_OBJECT
 public:
-    explicit SAbstractObjectRequest(QObject *parent = 0);
+    explicit SDeleteListFetchRequest(QObject *parent = 0);
+    virtual ~SDeleteListFetchRequest();
 
-    /*! Performs the request.
-     */
-    void start(SObjectManager *manager);
+    QList<SObjectLocalId> objectIds() const;
 
-signals:
-    void started();
-    void finished();
-
-protected:
-    friend class SObjectManager;
-    friend class SObjectSaveRequest;
-    friend class SObjectFetchRequest;
-    friend class SObjectRemoveRequest;
-    friend class SDeleteListFetchRequest;
-
+private:
     class Private;
-    Private *d;
 };
 
-#endif // SABSTRACTOBJECTREQUEST_H
+#endif // SDELETELISTFETCHREQUEST_H
