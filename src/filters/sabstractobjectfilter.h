@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <viroteck@viroteck.net>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,34 +15,34 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SCLOUDTABLEMODEL_P_H
-#define SCLOUDTABLEMODEL_P_H
+#ifndef SABSTRACTOBJECTFILTER_H
+#define SABSTRACTOBJECTFILTER_H
 
 // Qt
-#include <QtCore/QObject>
+#include <QObject>
+#include <QString>
+#include <QSharedPointer>
 
 // Us
-#include "scloudtablemodel.h"
-class SCloudItem;
+#include "sglobal.h"
+class SObject;
 
-class SCloudTableModel::Private : public QObject
+class SAbstractObjectFilter
 {
-    Q_OBJECT
 public:
-    Private(SCloudTableModel *parent, SCloudStorage *cloud);
+    SAbstractObjectFilter();
+    SAbstractObjectFilter(const SAbstractObjectFilter &);
+    SAbstractObjectFilter &operator=(const SAbstractObjectFilter &);
+    virtual ~SAbstractObjectFilter();
 
-    SCloudTableModel *q;
-    SCloudStorage *mCloud;
-    QList<QString> mColumnNames;
-    QList<QByteArray> mRows;
+    virtual bool matches(SObject *object);
 
-public slots:
-    void onItemCreated(const QByteArray &uuid);
-    void onItemDestroyed(const QByteArray &uuid);
-    void onItemChanged(const QByteArray &uuid);
+private:
+    friend class SObjectLocalIdFilter;
+    friend class SObjectDetailFilter;
 
-signals:
-    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    class Private;
+    QSharedPointer<Private> d;
 };
 
-#endif // SCLOUDTABLEMODEL_P_H
+#endif // SABSTRACTOBJECTFILTER_H

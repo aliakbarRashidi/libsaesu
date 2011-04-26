@@ -1,42 +1,46 @@
-QT += network
+QT += network sql
 CONFIG += create_pc create_prl
 
 TEMPLATE = lib
 TARGET = saesu
-DEPENDPATH += . include src
-INCLUDEPATH += . include
+DEPENDPATH += . src
+INCLUDEPATH += src
 
 MOC_DIR = ./.moc/
 OBJECTS_DIR = ./.obj/
 
+PRIVATE_HEADERS =
+
 # Input
-HEADERS += include/sglobal.h \
-           include/sipcchannel.h \
-           include/scloudstorage.h \
-           include/scloudtablemodel.h \
-           include/sdbmdatabase.h
+HEADERS += src/sglobal.h \
+           src/sipcchannel.h \
+           src/sobject.h \
+           src/sobjectmanager.h \
+           src/sobjectid.h
+
+include(src/src.pri)
 
 headers.path = /usr/include/saesu
 headers.files = $$HEADERS
+
+HEADERS += $$PRIVATE_HEADERS
 
 SOURCES += src/sipcchannel.cpp \
            src/sipcchannel_p.cpp \
            src/sipcserver.cpp \
            src/sipcconnection.cpp \
-           src/scloudstorage.cpp \
-           src/scloudstorage_p.cpp \
-    src/scloudtablemodel.cpp \
-    src/scloudtablemodel_p.cpp \
-    src/sdbmdatabase.cpp \
-    src/sdbmdatabase_p.cpp
+           src/sobject.cpp \
+           src/sobject_p.cpp \
+           src/sobjectmanager.cpp \
+           src/sobjectid.cpp \
+           src/sobjectid_p.cpp
 
 # private headers
-HEADERS += include/sipcchannel_p.h \
-           include/sipcserver_p.h \
-           include/sipcconnection_p.h \
-           include/scloudstorage_p.h \
-    include/scloudtablemodel_p.h \
-    include/sdbmdatabase_p.h
+HEADERS += src/sipcchannel_p.h \
+           src/sipcserver_p.h \
+           src/sipcconnection_p.h \
+           src/sobjectmanager_p.h \
+           src/sobjectid_p.h
 
 target.path = /usr/lib
 
@@ -44,7 +48,8 @@ QMAKE_PKGCONFIG_NAME = saesu
 QMAKE_PKGCONFIG_DESCRIPTION = Generic library of useful magic.
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
 QMAKE_PKGCONFIG_INCDIR = $$headers.path
-#QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 pkgconfig.files = $${TARGET}.pc
+pkgconfig.path = /usr/lib/pkgconfig
 
 INSTALLS += target headers

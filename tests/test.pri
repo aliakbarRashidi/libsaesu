@@ -1,5 +1,7 @@
 TEMPLATE = app
-INCLUDEPATH= ../../include/
+
+# FIXME: this is a horrid hack
+INCLUDEPATH= ../../src ../../src/filters ../../src/requests
 
 LIBS += -L../.. -lsaesu
 

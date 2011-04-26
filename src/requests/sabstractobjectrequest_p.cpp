@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <robin.burchell@collabora.co.uk>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU Lesser General Public License,
@@ -15,29 +15,12 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SDBMDATABASE_H
-#define SDBMDATABASE_H
+#include "sabstractobjectrequest.h"
+#include "sabstractobjectrequest_p.h"
 
-// Qt
-#include <QByteArray>
-
-// Us
-#include "sglobal.h"
-
-class SDBMDatabase
+SAbstractObjectRequest::Private::Private(SAbstractObjectRequest *parent)
+    : QObject(parent)
+    , q(parent)
 {
-public:
-    SDBMDatabase(const QString &databaseDirPath);
+}
 
-    bool hasItem(const QByteArray &key);
-    void remove(const QByteArray &key);
-    void set(const QByteArray &key, const QByteArray &value);
-    QByteArray get(const QByteArray &key, bool *ok);
-    const QList<QByteArray> &keys() const;
-
-private:
-    class Private;
-    Private *d;
-};
-
-#endif // SDBMDATABASE_H
