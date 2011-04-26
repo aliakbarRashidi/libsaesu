@@ -60,13 +60,13 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
     }
 
     // TODO: switch to integer keys and figure out a way to make this suck less
-    sDebug() << "Executing DELETE FROM objects WHERE key IN (" + uuidList + ")";
     query.exec("DELETE FROM objects WHERE key IN (" + uuidList + ")");
 
     bool atLeastOne = false;
     if (query.numRowsAffected() > 0) {
         atLeastOne = true;
     }
+    sDebug() << "Deleting " << mObjectIds.count() << "; " << query.numRowsAffected() << " really deleted";
 
     db.commit();
 
