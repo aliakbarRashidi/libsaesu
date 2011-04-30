@@ -45,7 +45,7 @@ QSqlDatabase SObjectManager::Private::connection()
             return mConnection;
         }
 
-        const int currentDbVersion = 2;
+        const int currentDbVersion = 3;
 
         // TODO: make this work with multiple ObjectManagers
         if (!mConnection.tables().contains("_saesu")) {
@@ -57,8 +57,8 @@ QSqlDatabase SObjectManager::Private::connection()
 
             q.exec("CREATE TABLE _saesu (version integer)");
             q.exec("INSERT INTO _saesu VALUES (" + QString::number(currentDbVersion) + ")");
-
             q.exec("CREATE TABLE objects (key primary key, timestamp integer, hash blob, object blob)");
+            q.exec("CREATE TABLE deletelist (key primary key, timestamp integer)");
 
             mConnection.commit();
         } else {
@@ -75,6 +75,7 @@ QSqlDatabase SObjectManager::Private::connection()
                     sDebug() << "Database up to date";
                     break;
                 case 1:
+                case 2:
                     // need to add a 'deletelist' table.
                     q.exec("CREATE TABLE deletelist (key primary key, timestamp integer)");
                     sDebug() << "Migrated successfully from schema v1";
