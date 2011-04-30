@@ -22,6 +22,8 @@
 #include "sipcserver_p.h"
 #include "sipcconnection_p.h"
 
+#undef SIPCCONNECTION_DEBUG
+
 SIpcConnection::SIpcConnection(QObject *parent)
     : QLocalSocket(parent)
     , mServerInstance(0)
@@ -33,7 +35,9 @@ SIpcConnection::SIpcConnection(QObject *parent)
 void SIpcConnection::reconnect()
 {
     // if we were asked to connect once, we should always reconnect
+#ifdef SIPCCONNECTION_DEBUG
     sDebug() << "Attempting reconnection";
+#endif
     connect(this, SIGNAL(disconnected()), SLOT(reconnect()), Qt::UniqueConnection);
     disconnectFromServer();
 
@@ -87,7 +91,9 @@ void SIpcConnection::processData(const QByteArray &bytes)
         case 0x1:
             // setting channel
             stream >> mChannelName;
+#ifdef SIPCCONNECTION_DEBUG
             sDebug() << "Set channel name to " << mChannelName << " for " << this;
+#endif
             emit channelNameSet(mChannelName);
             break;
         case 0x2: {
@@ -133,7 +139,9 @@ void SIpcConnection::setChannelName(const QString &channelName)
     bytes[3] = length >> 24;
 
     write(bytes);
+#ifdef SIPCCONNECTION_DEBUG
     sDebug() << "Sent channel change request to " << channelName;
+#endif
 }
 
 const QString &SIpcConnection::channelName() const
@@ -166,7 +174,9 @@ void SIpcConnection::sendMessage(const QString &message, const QByteArray &data)
 
     write(bytes);
     flush();
+#ifdef SIPCCONNECTION_DEBUG
     sDebug() << "Sent message to " << mChannelName << ": " << message;
+#endif
 }
 
 bool SIpcConnection::isServer() const

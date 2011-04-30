@@ -22,13 +22,17 @@
 #include "sipcserver_p.h"
 #include "sipcconnection_p.h"
 
+#undef SIPCSERVER_DEBUG
+
 SIpcServer::SIpcServer(QObject *parent)
     : QLocalServer(parent)
 {
     // remove stale file just in caase
     QLocalServer::removeServer(QLatin1String("sipcserver"));
     this->listen(QLatin1String("sipcserver"));
+#ifdef SIPCSERVER_DEBUG
     sDebug() << "Established myself as the server";
+#endif
 }
 
 void SIpcServer::incomingConnection(quintptr socketDescriptor)
@@ -39,12 +43,16 @@ void SIpcServer::incomingConnection(quintptr socketDescriptor)
                SLOT(onClientMessage(const QString &, const QByteArray &)));
     connect(s, SIGNAL(disconnected()), SLOT(onClientDisconnected()));
     mPeers.append(s);
+#ifdef SIPCSERVER_DEBUG
     sDebug() << "Registered connection " << s << ", total peers: " << mPeers.count();
+#endif
 }
 
 void SIpcServer::onClientDisconnected()
 {
+#ifdef SIPCSERVER_DEBUG
     sDebug() << "Connection closed";
+#endif
     SIpcConnection *s = qobject_cast<SIpcConnection *>(sender());
     if (S_VERIFY(s, "no QLocalSocket instance"))
         return;

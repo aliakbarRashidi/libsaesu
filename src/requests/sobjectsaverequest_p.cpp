@@ -29,6 +29,8 @@
 #include "sobjectmanager.h"
 #include "sobjectmanager_p.h"
 
+#undef SOBJECTSAVEREQUEST_DEBUG
+
 SObjectSaveRequest::Private::Private(SAbstractObjectRequest *parent)
     : SAbstractObjectRequest::Private(parent)
     , mSaveHint(SaveHintNone)
@@ -47,12 +49,8 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
 
         if (obj.id().localId().isNull()) {
             obj.id().setLocalId(QUuid::createUuid());
-
-            // insert
-            sDebug() << "Inserting " << obj.id().localId();
             objectsAdded.append(obj.id().localId());
         } else {
-            sDebug() << "Updating " << obj.id().localId();
             objectsUpdated.append(obj.id().localId());
         }
 
@@ -71,10 +69,14 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
             // if the object is coming from sync, it presumably already has
             // a save timestamp, so we should reuse it
             query.bindValue(":timestamp", obj.lastSaved());
+#ifdef SOBJECTSAVEREQUEST_DEBUG
             sDebug() << "Keeping existing save timestamp of " << obj.lastSaved();
+#endif
         } else {
             query.bindValue(":timestamp", QDateTime::currentMSecsSinceEpoch());
+#ifdef SOBJECTSAVEREQUEST_DEBUG
             sDebug() << "Setting save timestamp to " << QDateTime::currentMSecsSinceEpoch();
+#endif
         }
 
         query.bindValue(":key", obj.id().localId().toString());
@@ -87,8 +89,9 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         query.bindValue(":data", buf);
         query.exec();
 
+#ifdef SOBJECTSAVEREQUEST_DEBUG
         sDebug() << "Serialised form " << buf.toHex();
-        sDebug() << "No hex: " << buf;
+#endif
     }
     
     if (!objectsAdded.isEmpty()) {
@@ -111,6 +114,8 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
 
     db.commit();
 
+#ifdef SOBJECTSAVEREQUEST_DEBUG
     sDebug() << "Done";
+#endif
     emit q->finished();
 }
