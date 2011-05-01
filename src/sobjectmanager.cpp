@@ -19,6 +19,9 @@
 #include <QSqlQuery>
 #include <QStringList>
 #include <QVariant>
+#include <QCoreApplication>
+#include <QDir>
+#include <QDesktopServices>
 
 // Us
 #include "sobjectmanager.h"
@@ -37,8 +40,28 @@ SObjectManager::Private::Private(const QString &tableName, QObject *parent)
 QSqlDatabase SObjectManager::Private::connection()
 {
     if (!mConnection.isValid()) {
+        QString databasePath;
+        QCoreApplication *a = QCoreApplication::instance();
+
+        QString orgName = a->organizationName();
+        QString appName = a->applicationName();
+
+        a->setOrganizationName(QLatin1String("saesu"));
+        a->setApplicationName(QLatin1String("clouds"));
+
+        databasePath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+        QDir dirPath(databasePath);
+        if (!dirPath.exists())
+            dirPath.mkpath(databasePath);
+
+
+        // restore app name/org details
+        a->setOrganizationName(orgName);
+        a->setApplicationName(appName);
+
         mConnection = QSqlDatabase::addDatabase("QSQLITE", QLatin1String("saesu-cloud://") + mTableName);
-        mConnection.setDatabaseName(mTableName);
+        mConnection.setDatabaseName(databasePath + "/" + mTableName);
         if (!mConnection.open()) {
             // TODO: error handling
             sWarning() << "Couldn't open database";
