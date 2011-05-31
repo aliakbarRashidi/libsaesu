@@ -40,6 +40,7 @@ HEADERS += src/sipcchannel_p.h \
            src/sipcserver_p.h \
            src/sipcconnection_p.h \
            src/sobjectmanager_p.h \
+           src/sobject_p.h \
            src/sobjectid_p.h
 
 target.path = /usr/lib

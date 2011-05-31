@@ -1,18 +1,12 @@
 /*
- * Copyright (C) 2011 Robin Burchell <robin.burchell@collabora.co.uk>
+ * Copyright (C) 2011 Robin Burchell <viroteck@viroteck.net>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms and conditions of the GNU Lesser General Public License,
- * version 2.1, as published by the Free Software Foundation.
- *
- * This program is distributed in the hope it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
- * more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ * This software, and all associated material(s), including but not limited
+ * to documentation are protected by copyright. All rights reserved.
+ * Copying, including reproducing, storing, adapting, translating, or
+ * reverse-engineering any or all of this material requires prior written
+ * consent. This material also contains confidential information which
+ * may not be disclosed in any form without prior written consent.
  */
 
 // Qt
@@ -47,6 +41,12 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
     for (int i = 0; i < mObjects.count(); ++i) {
         SObject &obj = mObjects[i];
 
+        // TODO: this logic is wrong - if we recieve an object from a remote peer,
+        // it may have an id set, but be an added
+        // row, at least, according to our point of view.
+        //
+        // we probably need to do checking on the insert/replace query using
+        // sqlite3_changes() to see if a row was actually inserted or not
         if (obj.id().localId().isNull()) {
             obj.id().setLocalId(QUuid::createUuid());
             objectsAdded.append(obj.id().localId());
