@@ -1,0 +1,3 @@
+[ ] Replace object list APIs in requests with a cursor-based API for performance reasons
+[ ] Review internal implementations of request/filter/etc classes. Copy on write, or shared pointer?
+[ ] (far future) Rewrite SObject API to work based on 'details' like Contacts instead of QVariant based fields, for performance
