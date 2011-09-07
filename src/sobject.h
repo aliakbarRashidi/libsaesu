@@ -40,6 +40,12 @@ public:
     SObjectId id() const;
     void setId(const SObjectId &id);
 
+    /*! Retrieves a list of fields
+     *
+     * \sa setValue(), value()
+     */
+    QList<QString> fields() const;
+
     /*! Retrieves data for a given \a fieldName.
      */
     QVariant value(const QString &fieldName) const;

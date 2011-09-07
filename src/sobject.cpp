@@ -60,6 +60,11 @@ void SObject::setId(const SObjectId &id)
     d->mId = id;
 }
 
+QList<QString> SObject::fields() const
+{
+    return d->mValues.keys();
+}
+
 QVariant SObject::value(const QString &fieldName) const
 {
     return d->mValues[fieldName];
