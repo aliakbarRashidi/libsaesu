@@ -36,7 +36,11 @@ SOURCES += src/sipcchannel.cpp \
            src/sobjectid.cpp \
            src/sobjectid_p.cpp \
            src/speermodel.cpp \
-           src/speermodel_p.cpp
+           src/speermodel_p.cpp \
+           src/bonjour/bonjourserviceregister.cpp \
+           src/bonjour/bonjourservicebrowser.cpp \
+           src/bonjour/bonjourserviceresolver.cpp
+
 
 # private headers
 HEADERS += src/sipcchannel_p.h \
@@ -45,7 +49,11 @@ HEADERS += src/sipcchannel_p.h \
            src/sobjectmanager_p.h \
            src/sobject_p.h \
            src/sobjectid_p.h \
-           src/speermodel_p.h
+           src/speermodel_p.h \
+           src/bonjour/bonjourrecord.h \
+           src/bonjour/bonjourservicebrowser.h \
+           src/bonjour/bonjourserviceregister.h \
+           src/bonjour/bonjourserviceresolver.h
 
 target.path = /usr/lib
 
