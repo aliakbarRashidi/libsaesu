@@ -69,6 +69,7 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
 
     db.commit();
 
+#if 0
     // TODO: we really should not emit ids we didn't actually remove.'
     if (atLeastOne) {
         emit manager->objectsRemoved(mObjectIds);
@@ -78,6 +79,7 @@ void SObjectRemoveRequest::Private::start(SObjectManager *manager)
         ds << mObjectIds;
         manager->d->mIpcChannel.sendMessage(QLatin1String("removed(QList<SObjectLocalId>)"), ba);
     }
+#endif
 
     emit q->finished();
 }

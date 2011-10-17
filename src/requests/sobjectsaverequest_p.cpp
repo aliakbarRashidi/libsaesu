@@ -98,7 +98,8 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         sDebug() << "Serialised form " << buf.toHex();
 #endif
     }
-    
+
+#if 0
     if (!objectsAdded.isEmpty()) {
         emit manager->objectsAdded(objectsAdded);
 
@@ -116,6 +117,7 @@ void SObjectSaveRequest::Private::start(SObjectManager *manager)
         ds << objectsUpdated;
         manager->d->mIpcChannel.sendMessage(QLatin1String("updated(QList<SObjectLocalId>)"), ba);
     }
+#endif
 
     db.commit();
 

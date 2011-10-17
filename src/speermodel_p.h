@@ -23,7 +23,6 @@
 #include <QByteArray>
 
 // Us
-#include "sipcchannel.h"
 #include "speermodel.h"
 
 class SPeerModelPrivate : public QObject
@@ -37,8 +36,6 @@ private slots:
     void onReceived(const QString &message, QByteArray data);
 
 private:
-
-    SIpcChannel mPeerListener;
 };
 
 #endif // SPEERMODEL_H

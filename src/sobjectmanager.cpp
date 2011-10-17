@@ -31,9 +31,7 @@
 SObjectManager::Private::Private(const QString &tableName, QObject *parent)
     : QObject(parent)
     , mTableName(tableName)
-    , mIpcChannel(QLatin1String("saesu-cloud://") + tableName)
 {
-    connect(&mIpcChannel, SIGNAL(received(QString,QByteArray)), this, SLOT(onIpcMessage(QString,QByteArray)));
 }
 
 QSqlDatabase SObjectManager::Private::connection()

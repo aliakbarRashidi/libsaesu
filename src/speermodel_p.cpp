@@ -22,10 +22,7 @@
 
 SPeerModelPrivate::SPeerModelPrivate(QObject *parent)
      : QObject(parent)
-     , mPeerListener("saesu://peer-model")
 {
-    connect(&mPeerListener, SIGNAL(received(QString,QByteArray)),
-            SLOT(onReceived(const QString &, QByteArray)));
 }
 
 SPeerModelPrivate::~SPeerModelPrivate()

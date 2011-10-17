@@ -13,7 +13,6 @@ PRIVATE_HEADERS =
 
 # Input
 HEADERS += src/sglobal.h \
-           src/sipcchannel.h \
            src/sobject.h \
            src/sobjectmanager.h \
            src/sobjectid.h \
@@ -26,10 +25,7 @@ headers.files = $$HEADERS
 
 HEADERS += $$PRIVATE_HEADERS
 
-SOURCES += src/sipcchannel.cpp \
-           src/sipcchannel_p.cpp \
-           src/sipcserver.cpp \
-           src/sipcconnection.cpp \
+SOURCES += \
            src/sobject.cpp \
            src/sobject_p.cpp \
            src/sobjectmanager.cpp \
@@ -43,9 +39,7 @@ SOURCES += src/sipcchannel.cpp \
 
 
 # private headers
-HEADERS += src/sipcchannel_p.h \
-           src/sipcserver_p.h \
-           src/sipcconnection_p.h \
+HEADERS += \
            src/sobjectmanager_p.h \
            src/sobject_p.h \
            src/sobjectid_p.h \
