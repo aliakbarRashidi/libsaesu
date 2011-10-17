@@ -15,8 +15,7 @@ PRIVATE_HEADERS =
 HEADERS += src/sglobal.h \
            src/sobject.h \
            src/sobjectmanager.h \
-           src/sobjectid.h \
-           src/speermodel.h
+           src/sobjectid.h
 
 include(src/src.pri)
 
@@ -31,8 +30,6 @@ SOURCES += \
            src/sobjectmanager.cpp \
            src/sobjectid.cpp \
            src/sobjectid_p.cpp \
-           src/speermodel.cpp \
-           src/speermodel_p.cpp \
            src/bonjour/bonjourserviceregister.cpp \
            src/bonjour/bonjourservicebrowser.cpp \
            src/bonjour/bonjourserviceresolver.cpp
@@ -43,7 +40,6 @@ HEADERS += \
            src/sobjectmanager_p.h \
            src/sobject_p.h \
            src/sobjectid_p.h \
-           src/speermodel_p.h \
            src/bonjour/bonjourrecord.h \
            src/bonjour/bonjourservicebrowser.h \
            src/bonjour/bonjourserviceregister.h \
