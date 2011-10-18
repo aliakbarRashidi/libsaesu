@@ -90,7 +90,6 @@ void SRpcConnectionPrivate::connectToServer(const QHostInfo &hostInfo, int port)
     // TODO: this breaks ipv6 until we do
     foreach (const QHostAddress &remoteAddr, hostInfo.addresses()) {
         if (remoteAddr.protocol() == QAbstractSocket::IPv4Protocol) {
-            // TODO: don't open multiple sockets
             sDebug() << "Got told to connect to " << remoteAddr << " on " << port << " for " << mInterfaceName;
             mSocket.connectToHost(remoteAddr, port);
             break;
