@@ -91,7 +91,7 @@ SRpcServicePrivate::SRpcServicePrivate(QObject *parent, const QString &interface
      : QObject(parent)
      , mInterfaceName(interfaceName)
 {
-    connect(&mServer, SIGNAL(newConnection()), SLOT(onNewConnection()));
+    connect(&mServer, SIGNAL(newConnection(SRpcSocket*)), SLOT(onNewConnection(SRpcSocket*)));
 
     int portNo;
 
@@ -154,57 +154,11 @@ QString SRpcServicePrivate::generateSrvName(const QString &interfaceName)
     return "saesu-" + re;
 }
 
-void SRpcServicePrivate::onNewConnection()
+void SRpcServicePrivate::onNewConnection(SRpcSocket *socket)
 {
-    sDebug() << "TODO: implement me";
-    while (mServer.hasPendingConnections()) {
-        QTcpSocket *socket = mServer.nextPendingConnection();
-        sDebug() << "Got a new connection from " << socket->peerAddress();
-
-        // TODO: handshake here?
-
-        connect(socket, SIGNAL(readyRead()), SLOT(onReadyRead()));
-        connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
-    }
-}
-
-void SRpcServicePrivate::onReadyRead()
-{
-    // TODO: this could be refactored into a SRpcSocketPrivate or something
-    // that may additionally be useful if we consider e.g. having an SRpcReply
-    QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
-    if (S_VERIFY(socket, "no socket instance"))
-        return;
-
-    while (socket->bytesAvailable() >= sizeof(quint32)) {
-        quint32 bytesExpected = 0;
-
-        // TODO: this code is a bit awkward, because we don't store
-        // bytesExpected anywhere...
-
-        // read header
-        socket->peek(reinterpret_cast<char *>(&bytesExpected), sizeof(bytesExpected));
-        bytesExpected = qFromBigEndian<quint32>(bytesExpected);
-        bytesExpected += sizeof(quint32); // we need more than we actually expect, to read the header off
-
-        sDebug() << "Got " << socket->bytesAvailable() << "; want " << bytesExpected;
-
-        if (socket->bytesAvailable() < bytesExpected)
-            return;
-
-        // if we got here, we need to first remove the size header off the message
-        // we don't actually need to really keep it, as we already dealt with
-        // the size header via peeking above
-        quint32 dummy;
-        socket->read(reinterpret_cast<char *>(&dummy), sizeof(dummy));
-
-        // read bytesExpected bytes and process it
-        QByteArray bytes = socket->read(bytesExpected);
-        Q_ASSERT((quint32)bytes.length() == bytesExpected);
-
-        processData(bytes);
-    }
-
+    sDebug() << "Got a new connection from " << socket->peerAddress();
+    connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
+    connect(socket, SIGNAL(messageRead(const QByteArray&)), SLOT(processData(const QByteArray&)));
 }
 
 void SRpcServicePrivate::processData(const QByteArray &data)

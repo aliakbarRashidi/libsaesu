@@ -24,6 +24,26 @@
 
 // Us
 #include "srpcservice.h"
+#include "srpcsocket_p.h"
+
+class StupidInternalServerWrapper : public QTcpServer
+{
+    Q_OBJECT
+signals:
+    void newConnection(SRpcSocket *socket);
+
+public:
+    // XXX: this is a ridiculous hack
+    // as a result, we bypass the queue protection in QTcpServer
+    // we really need some kind of API in QTcpServer to add a QTcpSocket
+    // derived class to the list of pending connections
+    void incomingConnection (int socketDescriptor)
+    {
+        SRpcSocket *rpcSocket = new SRpcSocket(this);
+        rpcSocket->setSocketDescriptor(socketDescriptor);
+        emit newConnection(rpcSocket);
+    }
+};
 
 class SRpcServicePrivate : public QObject
 {
@@ -35,14 +55,13 @@ public:
     static QString generateSrvName(const QString &interfaceName);
 
 private slots:
-    void onNewConnection();
-    void onReadyRead();
+    void onNewConnection(SRpcSocket *socket);
     void onDisconnected();
     void processData(const QByteArray &data);
 
 
 private:
-    QTcpServer mServer;
+    StupidInternalServerWrapper mServer;
     QString mInterfaceName;
 };
 

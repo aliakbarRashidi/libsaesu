@@ -45,6 +45,7 @@ SOURCES += \
            src/rpc/srpcservice_p.cpp \
            src/rpc/sipclistener.cpp \
            src/rpc/sipclistener_p.cpp \
+           src/rpc/srpcsocket_p.cpp
 
 # private headers
 HEADERS += \
@@ -58,7 +59,8 @@ HEADERS += \
            src/rpc/srpcpeer_p.h \
            src/rpc/srpcconnection_p.h \
            src/rpc/srpcservice_p.h \
-           src/rpc/sipclistener_p.h
+           src/rpc/sipclistener_p.h \
+           src/rpc/srpcsocket_p.h
 
 target.path = /usr/lib
 

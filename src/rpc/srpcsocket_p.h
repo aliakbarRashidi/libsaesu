@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef SRPCCONNECTION_P_H
-#define SRPCCONNECTION_P_H
+#ifndef SRPCSOCKET_P_H
+#define SRPCSOCKET_P_H
 
 // Qt
-#include <QObject>
+#include <QTcpSocket>
 #include <QString>
-#include <QHostInfo>
+#include <QTcpServer>
 
 // Us
-#include "srpcsocket_p.h"
-#include "srpcconnection.h"
-#include "bonjourrecord.h"
-#include "bonjourserviceresolver.h"
+#include "sglobal.h"
 
-class SRpcConnectionPrivate : public QObject
+class SRpcSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    explicit SRpcConnectionPrivate(const QString &interfaceName, QObject *parent);
-    virtual ~SRpcConnectionPrivate();
+    explicit SRpcSocket(QObject *parent = 0);
+    virtual ~SRpcSocket();
+
+    void sendCommand(quint8 commandToken, const QByteArray &data);
+
+signals:
+    void messageRead(const QByteArray &message);
 
 private slots:
-    void connectToServer(const QHostInfo &hostInfo, int);
-    void updateRecords(const QList<BonjourRecord> &list);
+    void onReadyRead();
 
 private:
-    QString mInterfaceName;
-    SRpcSocket mSocket;
-    BonjourServiceResolver mResolver;
+    quint32 mBytesExpected;
 };
 
-#endif // SRPCCONNECTION_H
+#endif // SRPCSOCKET_H
+

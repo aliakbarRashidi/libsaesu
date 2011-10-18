@@ -50,7 +50,6 @@ SRpcConnectionPrivate::~SRpcConnectionPrivate()
 void SRpcConnectionPrivate::updateRecords(const QList<BonjourRecord> &list)
 {
     QStringList peerNames;
-    sDebug() << list.count() << " records";
 
     foreach (const BonjourRecord &record, list) {
         mResolver.resolveBonjourRecord(record);
@@ -60,25 +59,20 @@ void SRpcConnectionPrivate::updateRecords(const QList<BonjourRecord> &list)
     sDebug() << "Got peers: " << peerNames;
 }
 
-static void sendCommand(QTcpSocket *socket, quint8 token, const QByteArray &data)
-{
-    quint32 length = qToBigEndian<quint32>((quint32)data.length() + 1);
-    socket->write(reinterpret_cast<char *>(&length), sizeof(quint32));
-    socket->write(reinterpret_cast<char *>(&token), sizeof(quint8));
-    socket->write(data);
-}
-
 void SRpcConnectionPrivate::connectToServer(const QHostInfo &hostInfo, int port)
 {
+    if (mSocket.state() == QTcpSocket:: ConnectedState)
+        return;
+
     // TODO: handle this properly by queueing addresses and trying each of them until we find one that works
     // TODO: this breaks ipv6 until we do
     foreach (const QHostAddress &remoteAddr, hostInfo.addresses()) {
         if (remoteAddr.protocol() == QAbstractSocket::IPv4Protocol) {
             // TODO: don't open multiple sockets
             sDebug() << "Got told to connect to " << remoteAddr << " on " << port << " for " << mInterfaceName;
-            QTcpSocket *socket = new QTcpSocket(this);
-            socket->connectToHost(remoteAddr, port);
-            sendCommand(socket, 'A', QByteArray("this is a byte array"));
+            mSocket.connectToHost(remoteAddr, port);
+            mSocket.waitForConnected(); // XXX: remove me
+            mSocket.sendCommand('A', QByteArray("this is a byte array"));
             break;
         }
     }
