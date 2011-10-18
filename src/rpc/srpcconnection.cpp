@@ -40,6 +40,6 @@ SRpcConnection::~SRpcConnection()
 
 void SRpcConnection::send(const QString &command, const QVariantHash &parameters)
 {
-    sDebug() << "Sending RPC command" << command << "(" << parameters << ")";
+    d->send(command, parameters);
 }
 

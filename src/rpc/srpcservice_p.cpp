@@ -18,6 +18,7 @@
 #include <QTcpSocket>
 #include <QCryptographicHash>
 #include <QtEndian>
+#include <QMetaMethod>
 
 #include "srpcservice.h"
 #include "srpcservice_p.h"
@@ -158,12 +159,34 @@ void SRpcServicePrivate::onNewConnection(SRpcSocket *socket)
 {
     sDebug() << "Got a new connection from " << socket->peerAddress();
     connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
-    connect(socket, SIGNAL(messageRead(const QByteArray&)), SLOT(processData(const QByteArray&)));
+    connect(socket, SIGNAL(messageRead(const QByteArray&)), SLOT(processData(QByteArray)));
 }
 
-void SRpcServicePrivate::processData(const QByteArray &data)
+void SRpcServicePrivate::processData(QByteArray data)
 {
-    sDebug() << "Processing " << data;
+    QDataStream ds(&data, QIODevice::ReadOnly);
+    quint8 commandToken;
+    ds >> commandToken;
+
+    if (commandToken == 'A') {
+        QByteArray methodName;
+        QVariantHash parameters;
+
+        ds >> methodName;
+        ds >> parameters;
+        sDebug() << "Running method " << methodName << " with parameters " << parameters;
+
+        // find the method
+        // TODO: should we keep a lookup list?
+        // TODO: check access of methods
+        int methodIdx = parent()->metaObject()->indexOfMethod(methodName.constData());
+        QMetaMethod method = parent()->metaObject()->method(methodIdx);
+
+        sDebug() << "Invoking";
+        method.invoke(parent(), Qt::AutoConnection,
+                Q_ARG(QVariantHash, parameters));
+        sDebug() << "Invoked";
+    }
 }
 
 void SRpcServicePrivate::onDisconnected()

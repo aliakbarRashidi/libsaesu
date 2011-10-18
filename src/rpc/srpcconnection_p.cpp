@@ -72,8 +72,28 @@ void SRpcConnectionPrivate::connectToServer(const QHostInfo &hostInfo, int port)
             sDebug() << "Got told to connect to " << remoteAddr << " on " << port << " for " << mInterfaceName;
             mSocket.connectToHost(remoteAddr, port);
             mSocket.waitForConnected(); // XXX: remove me
-            mSocket.sendCommand('A', QByteArray("this is a byte array"));
+
+
+    QVariantHash params;
+    params.insert("test", "parameters");
+    send("test", params);
+
             break;
         }
     }
+}
+
+void SRpcConnectionPrivate::send(const QString &command, const QVariantHash &parameters)
+{
+    sDebug() << "Sending RPC command" << command << "(" << parameters << ")";
+
+    QString signature = command + "(const QVariantHash &)";
+
+    QByteArray ba;
+    QDataStream ds(&ba, QIODevice::WriteOnly);
+    ds << QByteArray(QMetaObject::normalizedSignature(signature.toLatin1()));
+    ds << parameters;
+
+    // TODO: if not connected, queue messages, drain queue once connected
+    mSocket.sendCommand('A', ba);
 }

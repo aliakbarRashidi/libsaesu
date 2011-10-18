@@ -35,6 +35,8 @@ public:
     explicit SRpcConnectionPrivate(const QString &interfaceName, QObject *parent);
     virtual ~SRpcConnectionPrivate();
 
+    void send(const QString &command, const QVariantHash &parameters);
+
 private slots:
     void connectToServer(const QHostInfo &hostInfo, int);
     void updateRecords(const QList<BonjourRecord> &list);

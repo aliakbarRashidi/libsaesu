@@ -57,7 +57,7 @@ public:
 private slots:
     void onNewConnection(SRpcSocket *socket);
     void onDisconnected();
-    void processData(const QByteArray &data);
+    void processData(QByteArray data);
 
 
 private:
