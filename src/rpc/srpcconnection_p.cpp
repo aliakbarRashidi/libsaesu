@@ -41,10 +41,32 @@ SRpcConnectionPrivate::SRpcConnectionPrivate(const QString &interfaceName, QObje
 
     connect(&mResolver, SIGNAL(bonjourRecordResolved(const QHostInfo &, int)),
             this, SLOT(connectToServer(const QHostInfo &, int)));
+
+    connect(&mSocket, SIGNAL(connected()), SLOT(onConnected()));
+    connect(&mSocket, SIGNAL(disconnected()), SLOT(onDisconnected()));
 }
 
 SRpcConnectionPrivate::~SRpcConnectionPrivate()
 {
+}
+
+void SRpcConnectionPrivate::onConnected()
+{
+    // TODO: move this to a connected callback
+    if (!mPendingMessages.isEmpty()) {
+        sDebug() << "Connected to RPC service for " << mInterfaceName << "; flushing message queue";
+        foreach (const QByteArray &message, mPendingMessages)
+            mSocket.sendCommand('A', message);
+
+        mPendingMessages.clear();
+    }
+}
+
+void SRpcConnectionPrivate::onDisconnected()
+{
+    // TODO: gracefully handle disconnection by attempting periodic reconnection
+    sDebug() << "DISCONNECTED! ACK!";
+    qCritical("SRpcConnectionPrivate::onDisconnected(): I can't handle disconnections");
 }
 
 void SRpcConnectionPrivate::updateRecords(const QList<BonjourRecord> &list)
@@ -71,13 +93,6 @@ void SRpcConnectionPrivate::connectToServer(const QHostInfo &hostInfo, int port)
             // TODO: don't open multiple sockets
             sDebug() << "Got told to connect to " << remoteAddr << " on " << port << " for " << mInterfaceName;
             mSocket.connectToHost(remoteAddr, port);
-            mSocket.waitForConnected(); // XXX: remove me
-
-
-    QVariantHash params;
-    params.insert("test", "parameters");
-    send("test", params);
-
             break;
         }
     }
@@ -93,6 +108,11 @@ void SRpcConnectionPrivate::send(const QString &command, const QVariantHash &par
     QDataStream ds(&ba, QIODevice::WriteOnly);
     ds << QByteArray(QMetaObject::normalizedSignature(signature.toLatin1()));
     ds << parameters;
+
+    if (mSocket.state() != QTcpSocket:: ConnectedState) {
+        mPendingMessages.append(ba);
+        return;
+    }
 
     // TODO: if not connected, queue messages, drain queue once connected
     mSocket.sendCommand('A', ba);

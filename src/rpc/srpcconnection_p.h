@@ -38,12 +38,15 @@ public:
     void send(const QString &command, const QVariantHash &parameters);
 
 private slots:
+    void onConnected();
+    void onDisconnected();
     void connectToServer(const QHostInfo &hostInfo, int);
     void updateRecords(const QList<BonjourRecord> &list);
 
 private:
     QString mInterfaceName;
     SRpcSocket mSocket;
+    QList<QByteArray> mPendingMessages;
     BonjourServiceResolver mResolver;
 };
 
