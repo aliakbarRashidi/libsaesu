@@ -43,7 +43,7 @@ class BonjourServiceResolver : public QObject
 {
     Q_OBJECT
 public:
-    BonjourServiceResolver(QObject *parent);
+    BonjourServiceResolver(QObject *parent = 0);
     ~BonjourServiceResolver();
 
     void resolveBonjourRecord(const BonjourRecord &record);
