@@ -41,7 +41,6 @@ void SRpcSocket::sendCommand(quint8 commandToken, const QByteArray &data)
 
 void SRpcSocket::onReadyRead()
 {
-    sDebug() << "Called, with " << bytesAvailable();
     while (bytesAvailable() >= sizeof(quint32)) {
         if (mBytesExpected == 0) {
             // read header
@@ -49,10 +48,10 @@ void SRpcSocket::onReadyRead()
             mBytesExpected = qFromBigEndian<quint32>(mBytesExpected);
         }
 
-        sDebug() << "Got " << bytesAvailable() << "; want " << mBytesExpected;
-
-        if (bytesAvailable() < mBytesExpected)
+        if (bytesAvailable() < mBytesExpected) {
+            sDebug() << "Got " << bytesAvailable() << "; want " << mBytesExpected;
             return;
+        }
 
         // read bytesExpected bytes and process it
         QByteArray bytes = read(mBytesExpected);
