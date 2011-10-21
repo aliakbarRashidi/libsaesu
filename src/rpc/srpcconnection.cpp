@@ -38,8 +38,13 @@ SRpcConnection::~SRpcConnection()
     sDebug() << "Destroying RPC connection";
 }
 
-void SRpcConnection::send(const QString &command, const QVariantHash &parameters)
+void SRpcConnection::invoke(const QString &command, const QVariantHash &parameters)
 {
-    d->send(command, parameters);
+    d->invoke(command, parameters);
+}
+
+void SRpcConnection::listen(const QString &signal, QObject *object, const char *slot)
+{
+    d->listen(signal, object, slot);
 }
 

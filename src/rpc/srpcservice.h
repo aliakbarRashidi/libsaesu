@@ -31,6 +31,8 @@ public:
     explicit SRpcService(const QString &interfaceName, QObject *parent = 0);
     virtual ~SRpcService();
 
+    void sendSignal(const QString &signalName, const QVariantHash &parameters = QVariantHash());
+
 private:
     SRpcServicePrivate *d;
 };

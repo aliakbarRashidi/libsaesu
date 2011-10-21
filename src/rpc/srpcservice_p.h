@@ -53,6 +53,7 @@ public:
     virtual ~SRpcServicePrivate();
 
     static QString generateSrvName(const QString &interfaceName);
+    void sendSignal(const QString &signalName, const QVariantHash &parameters);
 
 private slots:
     void onNewConnection(SRpcSocket *socket);
@@ -61,6 +62,7 @@ private slots:
 
 
 private:
+    QMultiHash<QString, SRpcSocket *> mSignalListeners;
     StupidInternalServerWrapper mServer;
     QString mInterfaceName;
 };

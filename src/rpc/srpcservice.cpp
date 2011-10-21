@@ -33,3 +33,9 @@ SRpcService::SRpcService(const QString &interfaceName, QObject *parent)
 SRpcService::~SRpcService()
 {
 }
+
+void SRpcService::sendSignal(const QString &signalName, const QVariantHash &parameters)
+{
+    sDebug() << "Sending signal " << signalName << " with parameters " << parameters;
+    d->sendSignal(signalName, parameters);
+}

@@ -44,11 +44,33 @@ SRpcConnectionPrivate::SRpcConnectionPrivate(const QString &interfaceName, QObje
 
     connect(&mSocket, SIGNAL(connected()), SLOT(onConnected()));
     connect(&mSocket, SIGNAL(disconnected()), SLOT(onDisconnected()));
+    connect(&mSocket, SIGNAL(messageRead(const QByteArray&)), SLOT(processData(QByteArray)));
 }
 
 SRpcConnectionPrivate::~SRpcConnectionPrivate()
 {
 }
+
+void SRpcConnectionPrivate::processData(QByteArray data)
+{
+    SRpcSocket *socket = qobject_cast<SRpcSocket *>(sender());
+    if (S_VERIFY(socket, "no socket ptr"))
+        return;
+
+    QDataStream ds(&data, QIODevice::ReadOnly);
+    quint8 commandToken;
+    ds >> commandToken;
+
+    if (commandToken == 'S') {
+        QString signalName;
+        QVariantHash parameters;
+
+        ds >> signalName;
+        ds >> parameters;
+        sDebug() << "Got signal " << signalName << " params: " << parameters << " from " << mInterfaceName;
+    }
+}
+
 
 void SRpcConnectionPrivate::onConnected()
 {
@@ -56,7 +78,7 @@ void SRpcConnectionPrivate::onConnected()
     if (!mPendingMessages.isEmpty()) {
         sDebug() << "Connected to RPC service for " << mInterfaceName << "; flushing message queue";
         foreach (const QByteArray &message, mPendingMessages)
-            mSocket.sendCommand('A', message);
+            mSocket.sendCommand(message);
 
         mPendingMessages.clear();
     }
@@ -97,7 +119,7 @@ void SRpcConnectionPrivate::connectToServer(const QHostInfo &hostInfo, int port)
     }
 }
 
-void SRpcConnectionPrivate::send(const QString &command, const QVariantHash &parameters)
+void SRpcConnectionPrivate::invoke(const QString &command, const QVariantHash &parameters)
 {
     sDebug() << "Sending RPC command" << command << "(" << parameters << ")";
 
@@ -108,11 +130,29 @@ void SRpcConnectionPrivate::send(const QString &command, const QVariantHash &par
     ds << QByteArray(QMetaObject::normalizedSignature(signature.toLatin1()));
     ds << parameters;
 
+    QByteArray commandPacket = mSocket.buildCommand('A', ba);
+
     if (mSocket.state() != QTcpSocket:: ConnectedState) {
-        mPendingMessages.append(ba);
+        mPendingMessages.append(commandPacket);
         return;
     }
 
-    // TODO: if not connected, queue messages, drain queue once connected
-    mSocket.sendCommand('A', ba);
+    mSocket.sendCommand(commandPacket);
 }
+
+void SRpcConnectionPrivate::listen(const QString &signal, QObject *object, const char *slot)
+{
+    QByteArray ba;
+    QDataStream ds(&ba, QIODevice::WriteOnly);
+    ds << signal;
+
+    QByteArray commandPacket = mSocket.buildCommand('s', ba);
+
+    if (mSocket.state() != QTcpSocket:: ConnectedState) {
+        mPendingMessages.append(commandPacket);
+        return;
+    }
+
+    mSocket.sendCommand(commandPacket);
+}
+

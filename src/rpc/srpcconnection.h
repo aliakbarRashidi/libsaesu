@@ -33,7 +33,8 @@ public:
     explicit SRpcConnection(const QString &interfaceName, SRpcPeer peer, QObject *parent = 0);
     virtual ~SRpcConnection();
 
-    void send(const QString &command, const QVariantHash &parameters);
+    void invoke(const QString &method, const QVariantHash &parameters);
+    void listen(const QString &signal, QObject *object, const char *slot);
 
 private:
     SRpcConnectionPrivate *d;

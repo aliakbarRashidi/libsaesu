@@ -35,13 +35,15 @@ public:
     explicit SRpcConnectionPrivate(const QString &interfaceName, QObject *parent);
     virtual ~SRpcConnectionPrivate();
 
-    void send(const QString &command, const QVariantHash &parameters);
+    void invoke(const QString &command, const QVariantHash &parameters);
+    void listen(const QString &signal, QObject *object, const char *slot);
 
 private slots:
     void onConnected();
     void onDisconnected();
     void connectToServer(const QHostInfo &hostInfo, int);
     void updateRecords(const QList<BonjourRecord> &list);
+    void processData(QByteArray data);
 
 private:
     QString mInterfaceName;

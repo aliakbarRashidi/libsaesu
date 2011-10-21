@@ -164,6 +164,10 @@ void SRpcServicePrivate::onNewConnection(SRpcSocket *socket)
 
 void SRpcServicePrivate::processData(QByteArray data)
 {
+    SRpcSocket *socket = qobject_cast<SRpcSocket *>(sender());
+    if (S_VERIFY(socket, "no socket ptr"))
+        return;
+
     QDataStream ds(&data, QIODevice::ReadOnly);
     quint8 commandToken;
     ds >> commandToken;
@@ -174,7 +178,7 @@ void SRpcServicePrivate::processData(QByteArray data)
 
         ds >> methodName;
         ds >> parameters;
-        sDebug() << "Running method " << methodName << " with parameters " << parameters;
+        sDebug() << "Running method " << mInterfaceName << methodName << " with parameters " << parameters;
 
         // find the method
         // TODO: should we keep a lookup list?
@@ -186,11 +190,44 @@ void SRpcServicePrivate::processData(QByteArray data)
         method.invoke(parent(), Qt::AutoConnection,
                 Q_ARG(QVariantHash, parameters));
         sDebug() << "Invoked";
+    } else if (commandToken == 's') {
+        QString signalName;
+
+        ds >> signalName;
+        sDebug() << "Listening to signal " << signalName;
+        mSignalListeners.insert(signalName, socket);
     }
 }
 
 void SRpcServicePrivate::onDisconnected()
 {
+    SRpcSocket *socket = qobject_cast<SRpcSocket *>(sender());
+    if (S_VERIFY(socket, "no socket ptr"))
+        return;
+
     sDebug() << "Client disconnected";
-    sender()->deleteLater();
+
+    // TODO: this is going to be quite slow with a lot of listeners
+    foreach (const QString &signal, mSignalListeners.keys()) {
+        if (mSignalListeners.values(signal).contains(socket))
+            mSignalListeners.remove(signal, socket);
+    }
+
+    socket->deleteLater();
 }
+
+void SRpcServicePrivate::sendSignal(const QString &signalName, const QVariantHash &parameters)
+{
+    sDebug() << "Trying to send signal to " << mInterfaceName << signalName << " with parameters " << parameters;
+    QByteArray ba;
+    QDataStream ds(&ba, QIODevice::WriteOnly);
+    ds << signalName;
+    ds << parameters;
+
+    // TODO: build command packet using an SRpcSocket static method, send the QBA
+    foreach (SRpcSocket *socket, mSignalListeners.values(signalName)) {
+        sDebug() << "Sending signal to socket";
+        socket->sendCommand('S', ba);
+    }
+}
+
