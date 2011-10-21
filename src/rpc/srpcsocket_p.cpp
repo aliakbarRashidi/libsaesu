@@ -59,6 +59,7 @@ void SRpcSocket::onReadyRead()
 
         sDebug() << "Read a message of " << bytes.length() << " bytes";
         emit messageRead(bytes);
+        mBytesExpected = 0;
     }
 
 }
