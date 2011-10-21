@@ -30,12 +30,29 @@ SRpcSocket::~SRpcSocket()
 {
 }
 
+QByteArray SRpcSocket::buildCommand(quint8 commandToken, const QByteArray &data)
+{
+    sDebug() << "Building command token " << (int)commandToken << " with payload " << data.toHex();
+    QByteArray ba;
+    quint32 length = qToBigEndian<quint32>((quint32)data.length() + 1);
+    ba.append(reinterpret_cast<char *>(&length), sizeof(quint32));
+    ba.append(reinterpret_cast<char *>(&commandToken), sizeof(quint8));
+    ba.append(data); // TODO: data copies make me sad; a custom struct instead
+                     //       of a QBA could hold a reference to the original data
+    return ba;
+}
+
+// used to send an already-constructed command packet
+void SRpcSocket::sendCommand(const QByteArray &data)
+{
+    qint64 ret = write(data);
+    sDebug() << "Tried to write " << data.length() << " bytes; wrote " << ret;
+}
+
 void SRpcSocket::sendCommand(quint8 commandToken, const QByteArray &data)
 {
-    quint32 length = qToBigEndian<quint32>((quint32)data.length() + 1);
-    write(reinterpret_cast<char *>(&length), sizeof(quint32));
-    write(reinterpret_cast<char *>(&commandToken), sizeof(quint8));
-    write(data);
+    QByteArray commandPacket = buildCommand(commandToken, data);
+    sendCommand(commandPacket);
 }
 
 

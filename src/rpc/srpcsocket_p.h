@@ -32,6 +32,8 @@ public:
     explicit SRpcSocket(QObject *parent = 0);
     virtual ~SRpcSocket();
 
+    QByteArray buildCommand(quint8 commandToken, const QByteArray &data);
+    void sendCommand(const QByteArray &data);
     void sendCommand(quint8 commandToken, const QByteArray &data);
 
 signals:
