@@ -20,10 +20,8 @@
 
 // Us
 #include "sobjectid.h"
-#include "sobjectid_p.h"
 
 SObjectId::SObjectId()
-     : d(new Private())
 {
     // XXX: this is a bit of an ugly hack
     static bool initialisedTypes = false;
@@ -39,24 +37,13 @@ SObjectId::~SObjectId()
 {
 }
 
-SObjectId::SObjectId(const SObjectId &rhs) : d(rhs.d)
-{
-}
-
-SObjectId &SObjectId::operator=(const SObjectId &rhs)
-{
-    if (this != &rhs)
-        d.operator=(rhs.d);
-    return *this;
-}
-
 SObjectLocalId SObjectId::localId() const
 {
-    return d->mUuid;
+    return mUuid;
 }
 
 void SObjectId::setLocalId(const SObjectLocalId &id)
 {
-    d->mUuid = id;
+    mUuid = id;
 }
 

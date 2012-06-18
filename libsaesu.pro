@@ -34,7 +34,6 @@ SOURCES += src/sipcchannel.cpp \
            src/sobject_p.cpp \
            src/sobjectmanager.cpp \
            src/sobjectid.cpp \
-           src/sobjectid_p.cpp \
            src/speermodel.cpp \
            src/speermodel_p.cpp \
            src/bonjour/bonjourserviceregister.cpp \
@@ -48,7 +47,6 @@ HEADERS += src/sipcchannel_p.h \
            src/sipcconnection_p.h \
            src/sobjectmanager_p.h \
            src/sobject_p.h \
-           src/sobjectid_p.h \
            src/speermodel_p.h \
            src/bonjour/bonjourrecord.h \
            src/bonjour/bonjourservicebrowser.h \

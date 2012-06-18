@@ -27,16 +27,13 @@ class SObjectId
 {
 public:
     SObjectId();
-    SObjectId(const SObjectId &);
-    SObjectId &operator=(const SObjectId &);
     virtual ~SObjectId();
 
     void setLocalId(const SObjectLocalId &id);
     SObjectLocalId localId() const;
 
 private:
-    class Private;
-    QSharedPointer<Private> d;
+    QUuid mUuid;
 };
 
 #endif // SOBJECTID_H
