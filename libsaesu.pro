@@ -33,9 +33,6 @@ SOURCES += src/sipcchannel.cpp \
            src/sobject_p.cpp \
            src/sobjectmanager.cpp \
            src/sobjectid.cpp \
-           src/bonjour/bonjourserviceregister.cpp \
-           src/bonjour/bonjourservicebrowser.cpp \
-           src/bonjour/bonjourserviceresolver.cpp
 
 
 # private headers
@@ -44,10 +41,6 @@ HEADERS += src/sipcchannel_p.h \
            src/sipcconnection_p.h \
            src/sobjectmanager_p.h \
            src/sobject_p.h \
-           src/bonjour/bonjourrecord.h \
-           src/bonjour/bonjourservicebrowser.h \
-           src/bonjour/bonjourserviceregister.h \
-           src/bonjour/bonjourserviceresolver.h
 
 target.path = /usr/lib
 
